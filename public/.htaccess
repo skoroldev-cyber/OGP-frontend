@@ -1,0 +1,136 @@
+# One Global People — Apache configuration for the Verpex static host.
+#
+# This replaces the itom codebase's public/_headers and public/_redirects, which are Netlify /
+# Cloudflare Pages formats and are inert on Apache (§7.11). Everything the app needs from the
+# host is here.
+
+# ---------------------------------------------------------------------------
+# SPA rewrite
+# ---------------------------------------------------------------------------
+# The experience is one continuous application with state transitions, not disconnected pages
+# (§1.2). Every route the router owns must serve index.html so a deep link lands inside the
+# world rather than on a 404.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Never rewrite a real file or directory — assets must resolve to themselves.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # The API is a different origin in production; if it is ever reverse-proxied under /api,
+  # it must not be swallowed by the SPA rewrite.
+  RewriteRule ^api/ - [L]
+
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Caching
+# ---------------------------------------------------------------------------
+<IfModule mod_headers.c>
+  # Hashed build output is immutable by construction.
+  <FilesMatch "\.(js|css|woff2|ktx2|webp|avif|png|jpg|svg|ogg|mp3|m4a)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # The shell must never be stale: it carries the script hashes.
+  <FilesMatch "^(index\.html|site\.webmanifest|robots\.txt|sitemap\.xml)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+
+  # ---------------------------------------------------------------------------
+  # Security headers
+  # ---------------------------------------------------------------------------
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+
+  # No feature this application uses requires any of these. Denying them is cheaper than
+  # explaining later why a reading room asked for a microphone.
+  Header always set Permissions-Policy "accelerometer=(self), gyroscope=(self), camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+
+  # HSTS. Enable only once the certificate is settled and every subdomain is on TLS.
+  # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+  # Content-Security-Policy.
+  #   'unsafe-inline' for style-src is required by React inline styles and by the R3F canvas
+  #   sizing; script-src stays strict. connect-src carries the API origin. frame-src and the
+  #   Collect.js script origin are the NMI hosted card fields — card data never touches this
+  #   origin's DOM, which is what keeps the platform in PCI SAQ-A scope (§6.5.3).
+  #   Adjust the API origin at deploy time to match VITE_API_BASE_URL.
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; img-src 'self' data: blob:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' https://secure.nmi.com; frame-src https://secure.nmi.com; connect-src 'self' https://oneglobalpeople.org https://secure.nmi.com; worker-src 'self' blob:; manifest-src 'self'; form-action 'self'"
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# MIME types
+# ---------------------------------------------------------------------------
+# Serving a font or a texture as text/plain silently disables it; the failure looks like a
+# design problem rather than a header problem, so it is worth being explicit.
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+  AddType image/webp .webp
+  AddType image/avif .avif
+  AddType image/svg+xml .svg
+  AddType model/gltf-binary .glb
+  AddType model/gltf+json .gltf
+  AddType application/octet-stream .ktx2
+  AddType audio/ogg .ogg
+  # Spline scenes. msgpack, not JSON — served as an opaque binary so no proxy tries to
+  # "helpfully" reformat it.
+  AddType application/octet-stream .splinecode
+  AddType application/manifest+json .webmanifest
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Compression
+# ---------------------------------------------------------------------------
+# The build emits .gz and .br alongside each asset (vite-plugin-compression). Prefer them.
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  <IfModule mod_headers.c>
+    RewriteCond %{HTTP:Accept-Encoding} br
+    RewriteCond %{REQUEST_FILENAME}.br -f
+    RewriteRule ^(.*)$ $1.br [QSA,L]
+
+    RewriteCond %{HTTP:Accept-Encoding} gzip
+    RewriteCond %{REQUEST_FILENAME}.gz -f
+    RewriteRule ^(.*)$ $1.gz [QSA,L]
+
+    <FilesMatch "\.js\.(br|gz)$">
+      Header set Content-Type "application/javascript"
+    </FilesMatch>
+    <FilesMatch "\.css\.(br|gz)$">
+      Header set Content-Type "text/css"
+    </FilesMatch>
+    <FilesMatch "\.splinecode\.(br|gz)$">
+      Header set Content-Type "application/octet-stream"
+    </FilesMatch>
+    <FilesMatch "\.br$">
+      Header set Content-Encoding br
+    </FilesMatch>
+    <FilesMatch "\.gz$">
+      Header set Content-Encoding gzip
+    </FilesMatch>
+  </IfModule>
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Staging
+# ---------------------------------------------------------------------------
+# On staging.oneglobalpeople.org, uncomment both: staging must be unindexable and gated to QA
+# engineers and stakeholders (§9.9, §13.6).
+# <IfModule mod_headers.c>
+#   Header always set X-Robots-Tag "noindex, nofollow"
+# </IfModule>
+# AuthType Basic
+# AuthName "One Global People — staging"
+# AuthUserFile /home/USER/.htpasswd-staging
+# Require valid-user
+
+ErrorDocument 404 /index.html

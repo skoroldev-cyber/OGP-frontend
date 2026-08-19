@@ -1,0 +1,42 @@
+// =============================================================================
+// ResumeCard
+//
+// Two choices of identical weight. No card shadow, no accent colour on one of them, no
+// size difference — "offered, never forced" has to be visible, not just claimed.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-resume-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: center;
+  margin-bottom: clamp(2rem, 8vh, 4rem);
+  padding-bottom: clamp(1.5rem, 5vh, 3rem);
+  border-bottom: 1px solid var(--ogp-read-rule);
+  text-align: center;
+
+  &__text {
+    font-family: var(--ogp-font-serif);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale));
+    line-height: var(--ogp-read-line-height);
+    color: var(--ogp-surface-text);
+    text-wrap: pretty;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__action {
+    // Same face, same size, same colour: equal weight is the point.
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale));
+  }
+}

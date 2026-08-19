@@ -1,0 +1,45 @@
+// =============================================================================
+// MilestoneHint
+//
+// One line, one dismissal, no chrome beyond a hairline. Not fixed, not overlaying the
+// manuscript, not animated beyond a slow fade — a hint that covered the text would be the
+// forced overlay the rules prohibit.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-milestone-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-block: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-block: 1px solid var(--ogp-read-rule);
+  animation: ogp-milestone-hint-in var(--ogp-duration-ui-gentle) var(--ogp-ease-enter) both;
+
+  &__text {
+    flex: 1 1 16rem;
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-control);
+    line-height: 1.6;
+    color: var(--ogp-read-text-dim);
+  }
+
+  &__dismiss {
+    @include quiet-control;
+  }
+}
+
+@keyframes ogp-milestone-hint-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

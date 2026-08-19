@@ -1,0 +1,91 @@
+// =============================================================================
+// BetaReadingPage — /openingarc
+//
+// The gate is one line and one field on the deep field. The reading page itself is the
+// ordinary reading surface; the only addition is the exact end button, pinned to the
+// bottom edge where it cannot interrupt the manuscript column.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-beta-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 2rem 1.5rem;
+  background-color: var(--ogp-read-field);
+
+  &__column {
+    @include reading-measure;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    text-align: center;
+  }
+
+  &__notice {
+    font-family: var(--ogp-font-serif);
+    line-height: var(--ogp-read-line-height);
+    color: var(--ogp-read-text);
+    text-wrap: pretty;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    width: min(100%, 20rem);
+    text-align: left;
+
+    > span:first-child {
+      font-family: var(--ogp-font-ui);
+      font-size: var(--ogp-ui-size-meta);
+      color: var(--ogp-read-text-dim);
+    }
+
+    input {
+      width: 100%;
+      min-height: $ogp-touch-target;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--ogp-read-text-dim);
+      background-color: var(--ogp-read-surface);
+      color: var(--ogp-read-text);
+    }
+  }
+
+  &__rejected {
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-control);
+    color: var(--ogp-error);
+  }
+
+  .ogp-invitation:disabled {
+    color: var(--ogp-read-text-dim);
+    cursor: default;
+    text-shadow: none;
+  }
+}
+
+.ogp-beta-reading {
+  &__end {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: $z-chrome;
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--ogp-read-field) 92%, transparent) 60%
+    );
+  }
+}

@@ -1,0 +1,227 @@
+// =============================================================================
+// OGP MIXINS
+//
+// Each mixin encodes a rule that would otherwise be repeated — and eventually
+// misremembered — in a dozen component partials.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+
+/// Hidden from sight, present for assistive technology.
+/// Used for the locked hidden labels: "Begin the Journey into the Immersive Reading
+/// Room." and "Enter the Immersive Reading Room." (§2.7, §3.2).
+@mixin visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/// The focus ring: 2 px `$ogp-focus`, 2 px offset, on EVERY interactive element,
+/// NEVER suppressed (§8.7). `:focus-visible` keeps it off mouse clicks, but the
+/// fallback below guarantees it exists even where `:focus-visible` is unsupported.
+@mixin focus-ring {
+  &:focus {
+    outline: 2px solid $ogp-focus;
+    outline-offset: 2px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $ogp-focus;
+    outline-offset: 2px;
+  }
+}
+
+/// The manuscript column. Measure 34em, generous leading, no first-line indents.
+/// Body size is expressed through `--ogp-text-scale` so the reader's five-step size
+/// control moves the whole column coherently rather than one element at a time.
+@mixin reading-measure {
+  max-width: var(--ogp-read-measure);
+  margin-inline: auto;
+  font-family: var(--ogp-font-serif);
+  font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale));
+  line-height: var(--ogp-read-line-height);
+  color: var(--ogp-surface-text);
+  text-wrap: pretty;
+}
+
+/// The 7x9 "Immersive Reading Layout" panel. Above the tablet breakpoint the column
+/// emulates the printed page proportion; below it, the column goes full-bleed with the
+/// SAME measure rules — mobile is a primary experience, not a reduced afterthought.
+@mixin reading-panel {
+  width: min(100%, calc(100dvh * #{$ogp-page-ratio}));
+  margin-inline: auto;
+
+  @media (max-width: #{$breakpoint-tablet - 1px}) {
+    width: 100%;
+    padding-inline: 1.25rem;
+    padding-inline: max(1.25rem, env(safe-area-inset-left));
+  }
+}
+
+/// Any text over live canvas imagery sits on a scrim of at least 40% `void-deep`,
+/// sized to the text block and verified at the brightest frame of the sequence
+/// beneath it (§8.11). This is a contrast requirement, not a decorative effect.
+@mixin scrim($opacity: $ogp-scrim-opacity) {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -1.5rem -2rem;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      #{color.change($ogp-void-deep, $alpha: $opacity)} 0%,
+      #{color.change($ogp-void-deep, $alpha: $opacity * 0.75)} 55%,
+      #{color.change($ogp-void-deep, $alpha: 0)} 100%
+    );
+  }
+}
+
+/// A threshold invitation: "Enter", the pathway titles. Never standard web-button
+/// styling — no boxes, borders or fills. The hover/focus response is a subtle glow
+/// (`gold-core` text-shadow at <= 8 px blur) or a gentle underline (§8.7).
+@mixin threshold-action {
+  display: inline-block;
+  padding: 0.5rem 0.25rem;
+  min-height: $ogp-touch-target;
+  border: 0;
+  background: none;
+  appearance: none;
+  font-family: var(--ogp-font-serif);
+  color: var(--ogp-gold-text);
+  cursor: pointer;
+  transition:
+    color var(--ogp-duration-ui-gentle) var(--ogp-ease),
+    text-shadow var(--ogp-duration-ui-gentle) var(--ogp-ease);
+
+  @include focus-ring;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--ogp-gold-core);
+    text-shadow: 0 0 8px #{color.change($ogp-gold-core, $alpha: 0.55)};
+  }
+
+  // No hover on touch: the light response becomes a gentle idle glow instead (§2.11).
+  @media (hover: none) {
+    &:hover {
+      color: var(--ogp-gold-text);
+      text-shadow: 0 0 6px #{color.change($ogp-gold-core, $alpha: 0.25)};
+    }
+  }
+}
+
+/// A quiet, low-emphasis text control: the three mandatory affordances and the reading
+/// chrome. Small and unobtrusive, but AA-compliant, and full contrast on focus (§8.7).
+@mixin quiet-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: $ogp-touch-target;
+  min-width: $ogp-touch-target;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  background: none;
+  appearance: none;
+  font-family: var(--ogp-font-ui);
+  font-size: var(--ogp-ui-size-control);
+  color: var(--ogp-read-text-dim);
+  cursor: pointer;
+  transition:
+    opacity var(--ogp-duration-ui-gentle) var(--ogp-ease),
+    color var(--ogp-duration-ui-micro) var(--ogp-ease);
+
+  @include focus-ring;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--ogp-read-text);
+    opacity: 1;
+  }
+}
+
+// ---- Breakpoints -------------------------------------------------------------
+
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == mobile {
+    @media (max-width: #{$breakpoint-tablet - 1px}) {
+      @content;
+    }
+  } @else if $breakpoint == tablet {
+    @media (min-width: $breakpoint-tablet) {
+      @content;
+    }
+  } @else if $breakpoint == desktop {
+    @media (min-width: $breakpoint-desktop) {
+      @content;
+    }
+  } @else if $breakpoint == wide {
+    @media (min-width: $breakpoint-wide) {
+      @content;
+    }
+  } @else if $breakpoint == touch {
+    @media (hover: none) and (pointer: coarse) {
+      @content;
+    }
+  } @else {
+    @media (min-width: $breakpoint) {
+      @content;
+    }
+  }
+}
+
+/// Content that applies when the SYSTEM asks for reduced motion. Safe at any nesting
+/// level, including the stylesheet root, because it emits only a media query.
+/// Reduced motion is a complete, first-class alternative, not a degraded one (§8.3.4).
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+/// Content that applies when the reader used the in-experience motion toggle, which is
+/// mandatory and independent of the system setting (§2.10). Must be used INSIDE a
+/// selector — it composes with the parent via `&`.
+@mixin motion-reduced-override {
+  :root[data-motion='reduced'] &,
+  :root[data-motion='off'] & {
+    @content;
+  }
+}
+
+/// Content that applies only when neither the system nor the reader asked for less motion.
+/// Must be used inside a selector.
+@mixin full-motion {
+  @media (prefers-reduced-motion: no-preference) {
+    :root:not([data-motion='reduced']):not([data-motion='off']) & {
+      @content;
+    }
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin fullscreen-layer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+}

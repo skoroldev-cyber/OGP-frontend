@@ -1,0 +1,153 @@
+// =============================================================================
+// ChoosePath — S14
+//
+// Equal-weight choices. Every declaration below applies to all of them: same face, same
+// size, same colour, same spacing. There is no rule here that could single one out, and
+// none may be added (§8.10.3).
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-choose-path {
+  position: fixed;
+  inset: 0;
+  z-index: $z-reading-surface;
+  overflow-y: auto;
+  padding-block: clamp(3rem, 12vh, 8rem);
+  padding-inline: 1.5rem;
+  padding-inline: max(1.5rem, env(safe-area-inset-left));
+  background-color: var(--ogp-read-field);
+
+  &__column {
+    @include reading-measure;
+  }
+
+  &__heading {
+    font-family: var(--ogp-font-serif);
+    font-size: var(--ogp-display-question);
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--ogp-read-text);
+    text-align: center;
+  }
+
+  &__intro {
+    margin-top: 1rem;
+    margin-bottom: clamp(2.5rem, 10vh, 5rem);
+    font-family: var(--ogp-font-serif);
+    color: var(--ogp-read-text-dim);
+    text-align: center;
+    text-wrap: pretty;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    // Generous vertical rhythm, identical between every pair (§8.10.3).
+    gap: clamp(2rem, 6vh, 3.5rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    text-align: center;
+
+    // A hairline above each choice, so the seven read as a considered list rather than as
+    // stacked text. Identical on every item — it is rhythm, not emphasis. The first has none,
+    // because a rule under the introduction would divide the page rather than measure it.
+    padding-top: clamp(1.75rem, 5vh, 3rem);
+    border-top: 1px solid color-mix(in srgb, var(--ogp-read-rule) 70%, transparent);
+
+    &:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+  }
+
+  &__label {
+    // Serif titles. No cards, no shadows, no borders, no fills, no prices (§8.10.3).
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.25);
+    // The whole line responds together on approach: the title warms toward gold and lifts by
+    // a hair. It is the same response on all seven — the page never suggests which to take.
+    transition:
+      color var(--ogp-duration-ui-gentle) var(--ogp-ease),
+      transform var(--ogp-duration-ui-gentle) var(--ogp-ease);
+  }
+
+  &__item:hover &__label,
+  &__item:focus-within &__label {
+    color: var(--ogp-gold-text);
+    transform: translateY(-2px);
+  }
+
+  // Below the seven and separated by a rule: a way back into the work, not an eighth choice
+  // competing with them. Chrome weight throughout — never a serif invitation (§6.2).
+  &__again {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: flex-start;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--ogp-read-rule);
+  }
+
+  &__again-note {
+    margin: 0;
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-meta);
+    line-height: 1.5;
+    color: var(--ogp-read-text-dim);
+    text-wrap: pretty;
+  }
+
+  &__sub {
+    max-width: 34ch;
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-control);
+    line-height: 1.6;
+    color: var(--ogp-read-text-dim);
+    text-wrap: pretty;
+    transition: color var(--ogp-duration-ui-gentle) var(--ogp-ease);
+  }
+
+  &__item:hover &__sub,
+  &__item:focus-within &__sub {
+    color: var(--ogp-read-text);
+  }
+
+  // The arc closed a moment ago. The page arrives the way the reading ended — quietly, and
+  // all at once, rather than animating itself in front of someone still holding a last line.
+  animation: ogp-choose-path-arrive var(--ogp-duration-scene) var(--ogp-ease-enter) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+
+    #{&}__label,
+    #{&}__sub {
+      transition: none;
+    }
+
+    #{&}__item:hover #{&}__label,
+    #{&}__item:focus-within #{&}__label {
+      transform: none;
+    }
+  }
+}
+
+@keyframes ogp-choose-path-arrive {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,190 @@
+// =============================================================================
+// ReadingSettings
+//
+// A quiet disclosure in the corner of the room. Never over the manuscript text: on desktop
+// it is a panel inset from the edge; on mobile it takes the width it needs and scrolls.
+//
+// Visible labels on every control — never a placeholder standing in for a label — and 44 px
+// touch targets throughout (§8.10.4). No streak, goal, percentage or celebration exists in
+// this surface, so none can be styled here.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-reading-settings {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(#{$ogp-touch-target} + 1.5rem);
+  z-index: $z-veil;
+  width: min(24rem, calc(100vw - 2rem));
+  max-height: min(70dvh, 44rem);
+  overflow-y: auto;
+  padding: 1.25rem;
+  border: 1px solid var(--ogp-read-rule);
+  background-color: var(--ogp-read-field);
+  font-family: var(--ogp-font-ui);
+  font-size: var(--ogp-ui-size-control);
+  color: var(--ogp-read-text);
+
+  // A hairline, not a control. Firefox has no arbitrary width, so `thin` is as close as it
+  // reaches; the reader scrolls with wheel, drag or keyboard either way.
+  scrollbar-width: thin;
+  scrollbar-color: var(--ogp-read-rule) transparent;
+
+  &::-webkit-scrollbar {
+    width: 1.5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--ogp-read-rule);
+  }
+
+  @include respond-to(mobile) {
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    max-height: 80dvh;
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+  }
+
+  &__head {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  &__title {
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-panel-title);
+    font-weight: 600;
+    color: var(--ogp-read-text);
+  }
+
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    align-items: center;
+    margin: 0;
+    padding: 0.75rem 0;
+    border: 0;
+    border-top: 1px solid var(--ogp-read-rule);
+
+    legend {
+      float: left;
+      width: 100%;
+      padding: 0;
+      margin-bottom: 0.5rem;
+      // read-text-dim on read-field is about 9:1 (§8.11).
+      color: var(--ogp-read-text-dim);
+      font-size: var(--ogp-ui-size-meta);
+      letter-spacing: $ui-caps-tracking;
+      text-transform: uppercase;
+    }
+  }
+
+  &__choice {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    min-height: $ogp-touch-target;
+    cursor: pointer;
+
+    input[type='radio'],
+    input[type='checkbox'] {
+      // Non-text UI reaches 3:1 against the field it sits on (§8.11).
+      accent-color: var(--ogp-gold-primary);
+      width: 1.125rem;
+      height: 1.125rem;
+      min-height: 1.125rem;
+      cursor: pointer;
+    }
+  }
+
+  &__volume {
+    width: 100%;
+    justify-content: space-between;
+
+    input[type='range'] {
+      width: 9rem;
+      min-height: $ogp-touch-target;
+      accent-color: var(--ogp-gold-primary);
+      cursor: pointer;
+    }
+  }
+
+  &__steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+  }
+
+  // A purely decorative read-out of where the five steps stand. Not a counter, not a
+  // score: it carries no number and is hidden from assistive technology, which is told
+  // the same thing by the disabled state of the two controls.
+  &__marks {
+    display: inline-flex;
+    gap: 0.25rem;
+    align-items: center;
+  }
+
+  &__mark {
+    display: block;
+    width: 0.5rem;
+    height: 1px;
+    background-color: var(--ogp-read-rule);
+
+    &[data-active='true'] {
+      background-color: var(--ogp-gold-muted);
+    }
+  }
+
+  &__confirm {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--ogp-read-rule);
+
+    p {
+      width: 100%;
+      color: var(--ogp-read-text-dim);
+      line-height: 1.6;
+    }
+  }
+
+  select {
+    min-height: $ogp-touch-target;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--ogp-read-rule);
+    background-color: var(--ogp-read-surface);
+    color: var(--ogp-read-text);
+
+    &:disabled {
+      color: var(--ogp-read-text-dim);
+      cursor: not-allowed;
+    }
+  }
+
+  .ogp-affordance {
+    @include quiet-control;
+
+    &:disabled {
+      color: var(--ogp-read-rule);
+      cursor: default;
+    }
+  }
+}

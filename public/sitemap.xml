@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Only routes that actually resolve appear here.
+
+  The itom codebase this project adapts shipped a sitemap listing /gallery, /about and /contact,
+  none of which existed client-side — every one of them 404'd. That is the specific mistake this
+  file exists not to repeat (§7.11): the hidden semantic layer links only to routes the router
+  can serve.
+
+  /openingarc and /s/:token are deliberately absent. They are private.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://oneglobalpeople.org/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://oneglobalpeople.org/reading-room</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+</urlset>

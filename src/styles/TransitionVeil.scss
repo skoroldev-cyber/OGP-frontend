@@ -1,0 +1,22 @@
+// =============================================================================
+// TransitionVeil — the teleport machine
+//
+// Starts hidden and invisible: a veil that is not currently carrying a transition must
+// cost nothing, neither a composite layer nor a pointer target.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-transition-veil {
+  &.ogp-transition-veil {
+    z-index: $z-veil;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 120% 100% at 50% 50%, #{$ogp-void-fog-near} 0%, #{$ogp-void-deep} 60%),
+      linear-gradient(180deg, #{$ogp-void-deep} 0%, #{$ogp-void-vignette} 100%);
+  }
+}

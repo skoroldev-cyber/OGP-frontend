@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="One Global People">
+  <title>One Global People</title>
+  <!--
+    Social card, 1200x630. Logo 2 in gold on void-deep.
+
+    No tagline is baked in (§8.6.4). The card carries the mark and the work's name and nothing
+    else — the tagline belongs to the hidden semantic layer and to support surfaces, never to
+    the opening experience, and a social card is the opening seen from outside.
+
+    Export a WebP from this at build or design time; the meta tag in index.html points at
+    /brand/og-image.webp because some crawlers will not render SVG.
+  -->
+  <defs>
+    <radialGradient id="field" cx="0.5" cy="0.46" r="0.72">
+      <stop offset="0%" stop-color="#0a0913" />
+      <stop offset="58%" stop-color="#06060c" />
+      <stop offset="100%" stop-color="#030307" />
+    </radialGradient>
+    <linearGradient id="ogStrandA" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#6e5320" />
+      <stop offset="40%" stop-color="#b58a45" />
+      <stop offset="66%" stop-color="#d9a64a" />
+      <stop offset="90%" stop-color="#ffe9c2" />
+      <stop offset="100%" stop-color="#8a6a2e" />
+    </linearGradient>
+    <linearGradient id="ogStrandB" x1="0.9" y1="0.1" x2="0.1" y2="0.9">
+      <stop offset="0%" stop-color="#8a6a2e" />
+      <stop offset="36%" stop-color="#d9a64a" />
+      <stop offset="70%" stop-color="#b58a45" />
+      <stop offset="100%" stop-color="#6e5320" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#field)" />
+
+  <g transform="translate(600 268) scale(0.62) translate(-256 -256)">
+    <g fill="none" stroke-linecap="round" stroke-width="17">
+      <ellipse cx="256" cy="256" rx="208" ry="96" stroke="url(#ogStrandA)" transform="rotate(0 256 256)" />
+      <ellipse cx="256" cy="256" rx="208" ry="96" stroke="url(#ogStrandB)" transform="rotate(60 256 256)" />
+      <ellipse cx="256" cy="256" rx="208" ry="96" stroke="url(#ogStrandA)" transform="rotate(120 256 256)" />
+    </g>
+    <g fill="none" stroke-linecap="round" stroke-width="11" opacity="0.85">
+      <ellipse cx="256" cy="256" rx="150" ry="68" stroke="url(#ogStrandB)" transform="rotate(30 256 256)" />
+      <ellipse cx="256" cy="256" rx="150" ry="68" stroke="url(#ogStrandA)" transform="rotate(90 256 256)" />
+      <ellipse cx="256" cy="256" rx="150" ry="68" stroke="url(#ogStrandB)" transform="rotate(150 256 256)" />
+    </g>
+    <circle cx="256" cy="256" r="72" fill="#030307" />
+    <circle cx="256" cy="256" r="72" fill="none" stroke="#6e5320" stroke-width="2.5" opacity="0.55" />
+  </g>
+
+  <text x="600" y="500" text-anchor="middle" font-family="Literata, Georgia, 'Times New Roman', serif"
+        font-size="46" letter-spacing="0.02em" fill="#efe9dc">Now or Never – One</text>
+  <text x="600" y="548" text-anchor="middle" font-family="Literata, Georgia, 'Times New Roman', serif"
+        font-size="24" letter-spacing="0.06em" fill="#cfae6e">ONE GLOBAL PEOPLE</text>
+</svg>

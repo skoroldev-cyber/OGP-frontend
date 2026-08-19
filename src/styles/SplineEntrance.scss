@@ -1,0 +1,56 @@
+@use 'ogp-tokens' as *;
+
+/// The Spline threshold.
+///
+/// It sits in the canvas layer's place: fixed, full-bleed, behind every DOM affordance. The
+/// ground beneath it is `void-deep` rather than transparent, so the moment before the scene
+/// resolves is darkness rather than white — there is no frame in which the reader sees the
+/// page (§2.4.1: "no white flash").
+.ogp-spline-entrance {
+  position: fixed;
+  inset: 0;
+  z-index: $z-canvas;
+  background: $ogp-void-deep;
+
+  /// The scene IS interactive: it is an authored 3D piece, and a reader who cannot move it
+  /// is looking at a picture. Input reaches it because every DOM sheet above is transparent
+  /// to pointer events (see the .ogp-overlay-passthrough rule in _base.scss) — only the
+  /// controls themselves take input back. Scroll is read at the window too, so the crossing
+  /// gesture works whether the pointer is over the scene or over a control.
+  pointer-events: auto;
+
+  &__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    /// The load is masked by darkness, not by a loader. The canvas fades in only once the
+    /// runtime reports the scene ready — until then it is fully transparent and the reader
+    /// sees the void it was always going to start in.
+    opacity: 0;
+    transition: opacity $ogp-duration-scene $ogp-ease;
+  }
+
+  &[data-loaded='true'] &__canvas {
+    opacity: 1;
+  }
+
+  /// A scene that never arrives leaves the darkness in place. No error, no retry button, no
+  /// explanation — the reader continues by the affordances that were always there.
+  &[data-failed='true'] &__canvas {
+    opacity: 0;
+  }
+
+  /// Reduced motion: the fade is the only movement, and it is slower still.
+  @media (prefers-reduced-motion: reduce) {
+    &__canvas {
+      transition-duration: $ogp-duration-threshold;
+    }
+  }
+
+  /// Motion Off: the canvas is not rendered at all (the component declines to mount it), so
+  /// this is the whole of what the reader sees — the void, holding.
+  :root[data-motion='off'] & {
+    background: $ogp-void-deep;
+  }
+}

@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+*.local
+
+# Environment — the example is committed, real values never are.
+.env
+.env.*
+!.env.example
+
+# Compression artefacts
+*.gz
+*.br
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Large binary assets are delivered through the asset pipeline, not the repository.
+# See public/{textures,fonts,sounds}/README.md for what belongs where.
+public/fonts/*.woff2
+public/fonts/*.ttf
+public/textures/**/*.webp
+public/textures/**/*.avif
+public/textures/**/*.ktx2
+public/sounds/*.ogg
+public/sounds/*.mp3
+public/sounds/*.m4a
+public/images/*.webp
+public/brand/*.png
+public/brand/*.webp

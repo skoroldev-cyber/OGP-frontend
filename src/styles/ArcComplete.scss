@@ -1,0 +1,58 @@
+// =============================================================================
+// ArcComplete — S13
+//
+// A full viewport of quiet, then one affordance. In beta builds a second, equally weighted
+// affordance sits beside it. Nothing else is on this screen.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-arc-complete {
+  position: fixed;
+  inset: 0;
+  z-index: $z-reading-surface;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  background-color: var(--ogp-read-field);
+
+  &__quiet {
+    // The held space after the final line. It is the content of this state (§3.13).
+    flex: 0 0 auto;
+    height: 38dvh;
+  }
+
+  &__response {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2.5rem;
+    align-items: center;
+    justify-content: center;
+    min-height: $ogp-touch-target;
+    padding: 0 1.5rem 38dvh;
+    opacity: 0;
+    transition: opacity var(--ogp-duration-ui-gentle) var(--ogp-ease-enter);
+
+    &[data-ready='true'] {
+      opacity: 1;
+    }
+  }
+
+  &__observations,
+  &__note {
+    // The exact locked label, at the same weight as the ordinary continue. Both are
+    // additional doors, not promoted ones — a reader who takes neither loses nothing, and
+    // nothing on this screen may suggest otherwise.
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.15);
+  }
+
+  &__share {
+    flex: 1 1 100%;
+    display: flex;
+    justify-content: center;
+  }
+}

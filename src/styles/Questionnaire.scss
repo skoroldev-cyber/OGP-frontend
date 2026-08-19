@@ -1,0 +1,309 @@
+// =============================================================================
+// Questionnaire
+//
+// One scrollable page, single column, in instrument order. Inter labels, serif question
+// text, fixed 1–5 scale rendered as five plain numbered controls (§8.10.4).
+//
+// There is no stepper, no progress bar, no percentage, no star, no emoji and no score in
+// this file, and none may be added — the instrument is research, not a rating widget.
+//
+// Two surfaces share these rules. `.ogp-questionnaire` is the S13 overlay, fixed over the
+// reading room. `.ogp-questionnaire--page` is the standalone address, which is an ordinary
+// document that scrolls: it must not be `position: fixed`, or a nineteen-question form would
+// trap its own scroll inside the viewport on a phone.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-questionnaire {
+  position: fixed;
+  inset: 0;
+  z-index: $z-reading-surface;
+  overflow-y: auto;
+  padding-block: clamp(2rem, 8vh, 5rem);
+  padding-inline: max(1.5rem, env(safe-area-inset-left));
+  background-color: var(--ogp-read-field);
+  font-family: var(--ogp-font-ui);
+  color: var(--ogp-read-text);
+
+  // The standalone page owns the document rather than covering one.
+  &--page {
+    position: static;
+    inset: auto;
+    min-height: 100dvh;
+    z-index: auto;
+  }
+
+  &__column {
+    @include reading-measure;
+
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    font-family: var(--ogp-font-ui);
+
+    // Confirmation, loading and the closed notice: one short line in the middle of a page
+    // that would otherwise be a column of nothing.
+    &--centred {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 50dvh;
+    }
+  }
+
+  &__organisation {
+    font-size: var(--ogp-ui-size-meta);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ogp-read-text-dim);
+  }
+
+  &__masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--ogp-read-rule);
+  }
+
+  &__title {
+    font-family: var(--ogp-font-serif);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.4);
+    font-weight: 400;
+    line-height: 1.25;
+    color: var(--ogp-read-text);
+  }
+
+  &__intro,
+  &__legend {
+    font-size: var(--ogp-ui-size-control);
+    line-height: 1.6;
+    color: var(--ogp-read-text-dim);
+    text-wrap: pretty;
+
+    &--quiet {
+      font-size: var(--ogp-ui-size-meta);
+    }
+  }
+
+  &__confirmation,
+  &__notice {
+    @include reading-measure;
+
+    padding-block: clamp(2rem, 12vh, 6rem);
+    text-align: center;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  &__section-title {
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-meta);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ogp-read-text-dim);
+  }
+
+  &__question {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  // Set on both the `<legend>` of a grouped question and the `<p>` of an ungrouped one, so
+  // every prompt on the page reads at the same weight whichever control follows it.
+  &__prompt {
+    display: block;
+    padding: 0;
+    // Serif question text; the words are verbatim instrument copy.
+    font-family: var(--ogp-font-serif);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale));
+    line-height: var(--ogp-read-line-height);
+    color: var(--ogp-read-text);
+    text-wrap: pretty;
+  }
+
+  // The instrument's short name for a question, above the question itself.
+  &__name {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-meta);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ogp-read-text-dim);
+  }
+
+  &__required {
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-meta);
+    color: var(--ogp-read-text-dim);
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    width: 100%;
+
+    > span:first-child {
+      font-size: var(--ogp-ui-size-meta);
+      color: var(--ogp-read-text-dim);
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      min-height: $ogp-touch-target;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--ogp-read-rule);
+      background-color: var(--ogp-read-surface);
+      color: var(--ogp-read-text);
+      font-family: var(--ogp-font-ui);
+      font-size: var(--ogp-ui-size-control);
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 2px solid var(--ogp-gold-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  // Five plain numbered controls. No stars, no emoji, no colour ramp.
+  &__ratings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  &__rating {
+    display: inline-flex;
+    gap: 0.375rem;
+    align-items: center;
+    justify-content: center;
+    min-width: $ogp-touch-target;
+    min-height: $ogp-touch-target;
+    padding: 0 0.75rem;
+    border: 1px solid var(--ogp-read-rule);
+    cursor: pointer;
+
+    // Checked state carried by the border as well as the radio, so the answer is legible
+    // without relying on the browser's accent colour alone.
+    &:has(input:checked) {
+      border-color: var(--ogp-gold-primary);
+    }
+
+    &:has(input:focus-visible) {
+      outline: 2px solid var(--ogp-gold-primary);
+      outline-offset: 2px;
+    }
+
+    input {
+      accent-color: var(--ogp-gold-primary);
+      width: 1rem;
+      height: 1rem;
+      min-height: 1rem;
+    }
+  }
+
+  // Taking a rating back. Quiet, because it is a correction rather than an action.
+  &__clear {
+    min-height: $ogp-touch-target;
+    padding: 0 0.75rem;
+    border: 0;
+    background: none;
+    color: var(--ogp-read-text-dim);
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-meta);
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--ogp-read-text);
+    }
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  &__chip {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    min-height: $ogp-touch-target;
+    padding: 0 0.75rem;
+    border: 1px solid var(--ogp-read-rule);
+    cursor: pointer;
+
+    &:has(input:checked) {
+      border-color: var(--ogp-gold-primary);
+    }
+
+    &:has(input:focus-visible) {
+      outline: 2px solid var(--ogp-gold-primary);
+      outline-offset: 2px;
+    }
+
+    input {
+      accent-color: var(--ogp-gold-primary);
+      width: 1rem;
+      height: 1rem;
+      min-height: 1rem;
+    }
+  }
+
+  &__foot {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+    padding-top: 1.5rem;
+    margin-bottom: clamp(2rem, 10vh, 6rem);
+    border-top: 1px solid var(--ogp-read-rule);
+  }
+
+  // A count of what is unanswered, not a progress bar. It states a fact and asks nothing.
+  &__progress {
+    font-size: var(--ogp-ui-size-meta);
+    color: var(--ogp-read-text-dim);
+  }
+
+  &__problem {
+    font-size: var(--ogp-ui-size-control);
+    line-height: 1.6;
+    color: var(--ogp-read-text);
+    text-wrap: pretty;
+  }
+
+  &__submit {
+    align-self: flex-start;
+
+    &:disabled {
+      color: var(--ogp-read-text-dim);
+      cursor: default;
+      text-shadow: none;
+    }
+  }
+}

@@ -1,0 +1,30 @@
+// =============================================================================
+// ContinueReading
+//
+// Two plain lines. There is no field, no button styling and no accent here, because there
+// is nothing to capture and nothing to sell.
+// =============================================================================
+
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-continue-reading {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: flex-start;
+
+  &__text {
+    font-family: var(--ogp-font-serif);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale));
+    line-height: var(--ogp-read-line-height);
+    color: var(--ogp-read-text);
+    text-wrap: pretty;
+  }
+
+  .ogp-affordance {
+    @include quiet-control;
+
+    padding-inline: 0;
+  }
+}

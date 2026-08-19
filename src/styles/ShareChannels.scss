@@ -1,0 +1,177 @@
+// =============================================================================
+// ShareChannels
+//
+// Three equal-weight rows, each an icon and a label. The icons are the §8.7 house set —
+// line, 1.5 px, 20 px grid — never brand marks and never brand colour. A channel that is
+// not built yet carries a quiet tag and is still a real, focusable, pressable control.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-share-channels {
+  .ogp-affordance {
+    @include quiet-control;
+  }
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    display: flex;
+  }
+
+  // The row. A whole target rather than a word: §8.10.4's 44 px applies to the thing the
+  // reader aims at, and the icon and label are one thing.
+  &__channel {
+    display: flex;
+    gap: 0.65rem;
+    align-items: center;
+    width: 100%;
+    min-height: $ogp-touch-target;
+    padding: 0.5rem 0.7rem;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    appearance: none;
+    font-family: var(--ogp-font-ui);
+    font-size: $ui-size-control;
+    color: var(--ogp-read-text-dim);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      color var(--ogp-duration-ui-gentle) var(--ogp-ease),
+      background-color var(--ogp-duration-ui-gentle) var(--ogp-ease);
+
+    @include focus-ring;
+
+    &:hover,
+    &:focus-visible {
+      background-color: color-mix(in srgb, var(--ogp-gold-primary) 8%, transparent);
+      color: var(--ogp-read-text);
+    }
+
+    // §8.7: `gold-primary` is the active state of an icon, and it belongs to the icon.
+    &:hover .ogp-share-channels__icon,
+    &:focus-visible .ogp-share-channels__icon {
+      color: var(--ogp-gold-text);
+    }
+  }
+
+  &__icon {
+    flex: 0 0 auto;
+    color: var(--ogp-read-text-dim);
+    transition: color var(--ogp-duration-ui-gentle) var(--ogp-ease);
+  }
+
+  &__label {
+    flex: 1 1 auto;
+  }
+
+  // Stated, not shouted. It sits with the row rather than under it, so the row reads as one
+  // sentence: "WhatsApp — coming soon".
+  &__soon {
+    flex: 0 0 auto;
+    padding: 0.1rem 0.45rem;
+    border: 1px solid var(--ogp-read-rule);
+    border-radius: 999px;
+    font-size: $ui-size-meta;
+    letter-spacing: 0.02em;
+    color: var(--ogp-read-text-dim);
+    white-space: nowrap;
+  }
+
+  &--disclosure {
+    position: relative;
+  }
+
+  &__panel {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    right: 0;
+    z-index: 1;
+    min-width: 15rem;
+    padding: 0.4rem;
+    border: 1px solid var(--ogp-read-rule);
+    border-radius: 12px;
+    background-color: var(--ogp-read-surface);
+    box-shadow: 0 16px 40px color-mix(in srgb, var(--ogp-scrim) 50%, transparent);
+
+    @supports (backdrop-filter: blur(2px)) {
+      backdrop-filter: blur(10px);
+    }
+
+    @include full-motion {
+      animation: ogp-share-panel-in var(--ogp-duration-ui-gentle) var(--ogp-ease) both;
+    }
+  }
+
+  &--disclosure &__list {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 0.1rem;
+  }
+
+  &--inline &__list {
+    justify-content: center;
+  }
+}
+
+@keyframes ogp-share-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// The composer, and the not-yet-built notice
+// -----------------------------------------------------------------------------
+
+.ogp-share-composer {
+  &__preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  // The message exactly as it will arrive. Monospace would make it look like configuration;
+  // this is the reader's own sentence, so it keeps the reading face.
+  &__preview-body {
+    margin: 0;
+    padding: 0.75rem 0.9rem;
+    border-left: 2px solid var(--ogp-gold-text);
+    border-radius: 0 8px 8px 0;
+    background-color: var(--ogp-well);
+    font-family: var(--ogp-font-ui);
+    font-size: $ui-size-meta;
+    line-height: 1.6;
+    color: var(--ogp-read-text);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  &__link {
+    display: flex;
+    justify-content: flex-start;
+  }
+}
+
+.ogp-share-soon {
+  &__body {
+    margin: 0;
+    font-family: var(--ogp-font-ui);
+    font-size: $ui-size-control;
+    line-height: 1.6;
+    color: var(--ogp-read-text-dim);
+  }
+}

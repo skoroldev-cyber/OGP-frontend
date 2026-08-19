@@ -1,0 +1,461 @@
+// =============================================================================
+// OGP BASE
+//
+// The ground the whole experience stands on: a small reset, the two self-hosted faces,
+// and the dark shell.
+//
+// There is no white anywhere. `#ffffff` backgrounds are a prohibited colour (§8.2.2), and
+// a white flash between the first paint and the first frame would break the very first
+// promise the experience makes ("Instant full-viewport black … no white flash", §2.4.1).
+// index.html paints `$ogp-void-deep` before a byte of JavaScript runs; this file keeps it.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+// ---- Self-hosted faces -------------------------------------------------------
+// The Google Fonts runtime dependency is removed (§7.7): a third-party font request from
+// the public build would violate the no-third-party-origin rule (§7.13 definition of done).
+
+@font-face {
+  font-family: 'Literata';
+  src: url('/fonts/literata-variable.woff2') format('woff2-variations');
+  font-weight: 200 900;
+  font-style: normal;
+  // `swap`, not `optional`: the manuscript must eventually be set in its own face.
+  // The file is preloaded in index.html and warmed in the READING_CORE group, so in
+  // practice the fallback is never seen.
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+// ---- Runtime tokens ----------------------------------------------------------
+// The CSS custom-property twin of `_ogp-tokens.scss`. It lives here, not in the token
+// module, because every component partial `@use`s that module and would otherwise re-emit
+// this whole block once per component. Loaded exactly once, from `main.scss`.
+
+:root {
+  // Void
+  --ogp-void-deep: #{$ogp-void-deep};
+  --ogp-void-vignette: #{$ogp-void-vignette};
+  --ogp-void-fog-near: #{$ogp-void-fog-near};
+  --ogp-void-particle: #{$ogp-void-particle};
+
+  // Gold
+  --ogp-gold-core: #{$ogp-gold-core};
+  --ogp-gold-primary: #{$ogp-gold-primary};
+  --ogp-gold-muted: #{$ogp-gold-muted};
+  --ogp-gold-deep: #{$ogp-gold-deep};
+  --ogp-gold-text: #{$ogp-gold-text};
+
+  // Earth echo
+  --ogp-atmos-rim: #{$ogp-atmos-rim};
+  --ogp-ocean-deep: #{$ogp-ocean-deep};
+
+  // Reading
+  --ogp-read-field: #{$ogp-read-field};
+  --ogp-read-surface: #{$ogp-read-surface};
+  --ogp-read-text: #{$ogp-read-text};
+  --ogp-read-text-dim: #{$ogp-read-text-dim};
+  --ogp-read-rule: #{$ogp-read-rule};
+
+  // Semantic
+  --ogp-focus: #{$ogp-focus};
+  --ogp-error: #{$ogp-error};
+  --ogp-success: #{$ogp-success};
+
+  // Motion
+  --ogp-duration-ui-micro: #{$ogp-duration-ui-micro};
+  --ogp-duration-ui-gentle: #{$ogp-duration-ui-gentle};
+  --ogp-duration-scene: #{$ogp-duration-scene};
+  --ogp-duration-passage: #{$ogp-duration-passage};
+  --ogp-duration-threshold: #{$ogp-duration-threshold};
+  --ogp-ease: #{$ogp-ease};
+  --ogp-ease-enter: #{$ogp-ease-enter};
+  --ogp-ease-exit: #{$ogp-ease-exit};
+
+  // Type
+  --ogp-font-serif: #{$ogp-font-serif};
+  --ogp-font-ui: #{$ogp-font-ui};
+  --ogp-read-size-base: #{$read-size-base};
+  --ogp-read-line-height: #{$read-line-height};
+  --ogp-read-line-height-stanza: #{$read-line-height-stanza};
+  --ogp-read-measure: #{$read-measure};
+  --ogp-read-para-space: #{$read-para-space};
+  --ogp-display-question: #{$display-question};
+  --ogp-ui-size-meta: #{$ui-size-meta};
+  --ogp-ui-size-control: #{$ui-size-control};
+  --ogp-ui-size-panel-title: #{$ui-size-panel-title};
+  --ogp-touch-target: #{$ogp-touch-target};
+
+  // Runtime-adjustable. The reader's text-size control writes this one value; every
+  // manuscript size is expressed as a multiple of it (5 steps, 0.875x–1.5x — §3.9).
+  --ogp-text-scale: 1;
+  // The reading surface's own background, so the opt-in light page mode can move it
+  // without disturbing the surrounding dark environment (§8.8).
+  --ogp-surface: #{$ogp-read-surface};
+  --ogp-surface-text: #{$ogp-read-text};
+  // What the browser paints outside every surface: overscroll, rubber-band, the strip
+  // beyond a short page. It follows the theme so the room has no dark edge in light mode.
+  --ogp-shell-bg: #{$ogp-void-deep};
+  // The colour reading chrome lifts itself off the page with. Always the darker of the two
+  // ends of the current theme, so a scrim reads as shade rather than as a grey rectangle.
+  --ogp-scrim: #{$ogp-void-deep};
+  // A recessed field: one step back from the panel it sits on, never a box drawn around
+  // itself. Concrete per theme rather than a translucent scrim, because the same alpha that
+  // reads as a shallow well on the dark panel reads as a stain on the light one.
+  --ogp-well: #0a0a09;
+}
+
+// ---- Light page --------------------------------------------------------------
+// The reader's theme choice is one choice for the whole experience, not for the manuscript
+// column alone: the room, its chrome, the pathways and the donation and family flows all
+// move together, because a reader who asked for a light page and then met a black donation
+// form would have been given a setting that only half applies (§8.8).
+//
+// The cinematic thresholds are deliberately untouched. S0–S8 are authored scenes staged in
+// the void, the theme control is not reachable until S9, and the canvas paints its own
+// background — so nothing here can turn the opening into a light-coloured website.
+//
+// Gold and the semantic colours are re-cut rather than reused. The dark palette's gold sits
+// at about 1.9:1 on a warm-white page, which is under the 3:1 that non-text UI owes (§8.11);
+// these are the same hues carried down until they clear it.
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --ogp-gold-core: #a87c2a;
+  --ogp-gold-primary: #8a6520;
+  --ogp-gold-muted: #6e5320;
+  --ogp-gold-text: #6e5320;
+
+  --ogp-read-field: #e4ddcd;
+  --ogp-read-surface: #f2ede2;
+  --ogp-read-text: #1d1b17;
+  --ogp-read-text-dim: #55503f;
+  --ogp-read-rule: #c8c0ad;
+
+  --ogp-focus: #6e5320;
+  --ogp-error: #a8412e;
+  --ogp-success: #4f6b3c;
+
+  --ogp-surface: #f2ede2;
+  --ogp-surface-text: #1d1b17;
+  --ogp-shell-bg: #e4ddcd;
+  --ogp-scrim: #a79c84;
+  --ogp-well: #e9e2d2;
+}
+
+// ---- Reset -------------------------------------------------------------------
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
+  /// The canonical environment is dark (§8.8), and this is how that is declared to the
+  /// browser rather than only to the stylesheet. The opt-in light page flips it, above.
+  ///
+  /// Without it the parts of the interface the browser draws itself stay light: the popup
+  /// list of a `<select>` opened as a grey sheet with black text in the middle of the reading
+  /// room, because that list is rendered by the platform and never sees our CSS. Scrollbars,
+  /// autofill backgrounds, date pickers and spin buttons had the same problem.
+  color-scheme: dark;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background-color: var(--ogp-shell-bg);
+  color: var(--ogp-read-text);
+}
+
+body {
+  font-family: var(--ogp-font-ui);
+  font-size: var(--ogp-ui-size-control);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/// The options inside a `<select>`.
+///
+/// `color-scheme` above is what makes the popup itself follow the theme; these two
+/// declarations are what stop the individual rows inheriting a transparent background and
+/// rendering as the platform's default grey. Both are needed — the popup and its contents
+/// are drawn by different parts of the browser — and neither can be reached by styling the
+/// `<select>`.
+option {
+  background-color: var(--ogp-read-surface);
+  color: var(--ogp-read-text);
+}
+
+// Every interactive element carries the ring. It is never suppressed (§8.7).
+a,
+button,
+input,
+select,
+textarea,
+[tabindex]:not([tabindex='-1']) {
+  @include focus-ring;
+}
+
+// The minimum touch target is 44 px (§8.10.4). Applied to controls rather than to
+// everything so that inline links inside the manuscript keep the text's own rhythm.
+button,
+[role='button'],
+input[type='checkbox'],
+input[type='radio'] {
+  min-height: $ogp-touch-target;
+}
+
+a {
+  color: var(--ogp-gold-text);
+  text-underline-offset: 0.15em;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--ogp-gold-primary) 28%, transparent);
+  color: var(--ogp-read-text);
+}
+
+// The reader's own motion preference wins over every animation in the application —
+// whether it came from the operating system or from the mandatory in-experience toggle.
+@include reduced-motion {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:root[data-motion='reduced'] *,
+:root[data-motion='reduced'] *::before,
+:root[data-motion='reduced'] *::after,
+:root[data-motion='off'] *,
+:root[data-motion='off'] *::before,
+:root[data-motion='off'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+// ---- Shell -------------------------------------------------------------------
+
+#root {
+  min-height: 100dvh;
+}
+
+.ogp-visually-hidden {
+  @include visually-hidden;
+}
+
+/// The application is one continuous surface. Two layers only: the canvas (decoration)
+/// and the DOM (the experience). There are no pages.
+.ogp-app {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  background-color: $ogp-void-deep;
+}
+
+/// The persistent canvas. `aria-hidden` in the markup; pointer-transparent here so the
+/// accessible tree above it is never blocked by decoration.
+.ogp-canvas-layer {
+  position: fixed;
+  inset: 0;
+  z-index: $z-canvas;
+  width: 100%;
+  height: 100dvh;
+  pointer-events: none;
+}
+
+/// The DOM overlay. The layer itself does not intercept pointer events; its children do,
+/// so the canvas beneath stays reachable where nothing is on top of it.
+.ogp-dom-layer {
+  position: relative;
+  z-index: $z-dom-layer;
+  min-height: 100dvh;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+
+  /// Full-bleed children opt out.
+  ///
+  /// The blanket rule above assumes a child is roughly the size of the thing it contains. A
+  /// child that is `position: fixed; inset: 0` is not — it is a sheet across the whole
+  /// viewport, and making it `auto` hands it every wheel, pointer and touch event on the page.
+  /// That is what stopped the scene beneath from being scrollable or interactive at all.
+  ///
+  /// These layers stay transparent to input; the controls *inside* them take it back. The
+  /// selector is deliberately more specific than `> *` rather than relying on source order,
+  /// which is what let the bug through the first time.
+  > .ogp-overlay-passthrough {
+    pointer-events: none;
+  }
+}
+
+/// Marks a full-bleed overlay whose own children own the input, not the sheet.
+.ogp-overlay-passthrough {
+  > * {
+    pointer-events: auto;
+  }
+}
+
+/// The three mandatory affordances, bottom edge, low emphasis, always present.
+/// They fade to 40% after four idle seconds and return to full contrast on any focus or
+/// pointer intent — they are never removed (§8.7).
+.ogp-affordances {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: $z-chrome;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  opacity: 1;
+  transition: opacity var(--ogp-duration-ui-gentle) var(--ogp-ease);
+
+  &[data-idle='true'] {
+    opacity: $ogp-affordance-idle-opacity;
+  }
+
+  &:hover,
+  &:focus-within {
+    opacity: 1;
+  }
+}
+
+.ogp-affordance {
+  @include quiet-control;
+}
+
+/// Threshold invitations: "Enter", "Begin the Journey", the pathway titles.
+.ogp-invitation {
+  @include threshold-action;
+
+  font-size: var(--ogp-display-question);
+}
+
+/// Protected-voice passages and threshold display lines, set in the serif over live canvas.
+.ogp-threshold-text {
+  @include scrim;
+
+  font-family: var(--ogp-font-serif);
+  font-size: var(--ogp-display-question);
+  line-height: 1.35;
+  color: var(--ogp-read-text);
+  text-align: center;
+  text-wrap: balance;
+}
+
+/// The manuscript column.
+.ogp-reading-surface {
+  position: relative;
+  z-index: $z-reading-surface;
+  min-height: 100dvh;
+  // The theme itself is resolved once on the document element; `data-theme` is mirrored
+  // here as a hook, not as a second source of truth.
+  background-color: var(--ogp-read-field);
+}
+
+.ogp-reading-column {
+  @include reading-panel;
+  @include reading-measure;
+
+  background-color: var(--ogp-surface);
+  padding-block: clamp(2rem, 8vh, 6rem);
+}
+
+/// Reading chrome recedes while reading and restores on intent. Never a trap.
+.ogp-chrome {
+  position: fixed;
+  z-index: $z-chrome;
+  opacity: 1;
+  transition: opacity var(--ogp-duration-ui-gentle) var(--ogp-ease);
+
+  &[data-receded='true'] {
+    opacity: $ogp-chrome-receded-opacity;
+  }
+
+  &:hover,
+  &:focus-within {
+    opacity: 1;
+  }
+}
+
+/// Darkness is the loading veil. There is no spinner, no percentage, no progress bar
+/// anywhere in this application (BUILD_CONTRACT §0.6) — layered gradients and a soft
+/// vignette are what keep it from reading as flat black (§2.4.2).
+.ogp-veil {
+  @include fullscreen-layer;
+
+  z-index: $z-veil;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 45%, #{$ogp-void-fog-near} 0%, #{$ogp-void-deep} 55%),
+    radial-gradient(ellipse at 50% 50%, transparent 40%, #{$ogp-void-vignette} 100%);
+}

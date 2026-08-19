@@ -1,0 +1,84 @@
+// =============================================================================
+// AgeRangePrompt — S9, Phase 1B
+//
+// One column, one decision, no time limit (§3.10 cognitive). Six ranges as quiet serif
+// choices; the privacy statement in `read-text-dim` beneath them, at readable size —
+// never demoted to fine print (§8.10.4).
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-age-prompt {
+  position: fixed;
+  inset: 0;
+  z-index: $z-reading-surface;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding: clamp(1.5rem, 6vh, 4rem) 1.5rem;
+  background-color: var(--ogp-read-field);
+
+  &__column {
+    @include reading-measure;
+
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 4vh, 2.5rem);
+    text-align: center;
+  }
+
+  &__message {
+    color: var(--ogp-read-text);
+    text-wrap: pretty;
+  }
+
+  &__choices {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  &__prompt {
+    display: block;
+    padding: 0;
+    margin-bottom: 1.25rem;
+    font-family: var(--ogp-font-serif);
+    color: var(--ogp-read-text);
+    text-wrap: pretty;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    // Generous vertical rhythm; the six ranges carry equal weight, always.
+    gap: 0.75rem;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__band {
+    // The band label IS the routing key (§3.3): display and key are the same string.
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.25);
+    letter-spacing: $ui-caps-tracking;
+  }
+
+  &__decline {
+    @include quiet-control;
+
+    align-self: center;
+  }
+
+  &__privacy {
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-control);
+    line-height: 1.6;
+    // #b9b2a3 on #0e0d0b is about 9:1 — comfortably past the 4.5:1 floor (§8.11).
+    color: var(--ogp-read-text-dim);
+    text-wrap: pretty;
+  }
+}

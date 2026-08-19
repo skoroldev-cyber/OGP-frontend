@@ -1,0 +1,42 @@
+// =============================================================================
+// BecomeFamilyThreshold
+//
+// A full viewport of `read-field`, the phrase alone in serif at display size, and nothing
+// else. The response affordance fades in only after the stillness has passed, over the
+// threshold duration — the slowest ramp in the token set.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-become-family {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 14vh, 8rem);
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 2rem 1.5rem;
+  background-color: var(--ogp-read-field);
+  text-align: center;
+
+  &__phrase {
+    font-family: var(--ogp-font-serif);
+    // Display size. The trailing period is part of the phrase and is never trimmed.
+    font-size: var(--ogp-display-question);
+    line-height: 1.2;
+    color: var(--ogp-read-text);
+    text-wrap: balance;
+  }
+
+  &__response {
+    min-height: $ogp-touch-target;
+    opacity: 0;
+    transition: opacity var(--ogp-duration-threshold) var(--ogp-ease-enter);
+
+    &[data-ready='true'] {
+      opacity: 1;
+    }
+  }
+}

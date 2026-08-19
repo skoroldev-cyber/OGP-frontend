@@ -1,0 +1,19 @@
+# One Global People — oneglobalpeople.org
+#
+# The landing renders no visible text for roughly seventy seconds and no crawlable copy inside
+# the canvas, so discoverability rests on the hidden semantic layer in index.html (§2.13).
+
+User-agent: *
+Allow: /
+
+# The Founding Reader beta reading page is reached by link possession only. It must never be
+# indexed: it serves a pre-public edition to a named cohort (§5, §13).
+Disallow: /openingarc
+
+# Share links are private continuity transfers between two people, not public documents.
+Disallow: /s/
+
+# Commerce flows carry signed, single-use tokens in the query string.
+Disallow: /path/
+
+Sitemap: https://oneglobalpeople.org/sitemap.xml

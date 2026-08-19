@@ -1,0 +1,56 @@
+// =============================================================================
+// PortalInvitation — S4 / S5
+//
+// One centred column beneath the weave: the question, then the action. Nothing else is
+// on this screen — no navigation, headline, donation ask, org description or social links
+// (§8.10.1).
+//
+// The action is a serif text invitation. It never acquires button chrome: no box, no
+// border, no fill. Its whole response is light (§8.7).
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-portal-invitation {
+  position: fixed;
+  inset: 0;
+  z-index: $z-chrome;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2rem, 8vh, 5rem);
+  padding: 2rem 1.5rem;
+  padding-bottom: max(6rem, env(safe-area-inset-bottom));
+  pointer-events: none;
+  text-align: center;
+
+  > * {
+    pointer-events: auto;
+  }
+
+  &__question {
+    // Muted gold on the void: ~8:1 (§8.11). The protected words are never adjusted for
+    // contrast — only the luminance behind them, which the scrim mixin supplies.
+    color: var(--ogp-gold-text);
+    max-width: 22ch;
+  }
+
+  &__action {
+    opacity: 0;
+    transition: opacity var(--ogp-duration-passage) var(--ogp-ease-enter);
+
+    &[data-revealed='true'] {
+      opacity: 1;
+    }
+  }
+
+  @include respond-to(mobile) {
+    // Portrait framing: the passage reflows narrower and the column stays centre-weighted
+    // inside 9:16 safe margins (§2.11).
+    gap: clamp(1.5rem, 6vh, 3rem);
+    padding-inline: max(1.25rem, env(safe-area-inset-left));
+  }
+}

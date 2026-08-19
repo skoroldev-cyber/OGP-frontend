@@ -1,0 +1,69 @@
+// =============================================================================
+// CollectJsFields
+//
+// Three hosted iframes styled to look like the rest of the form. Visible labels above each
+// one — never a placeholder standing in for a label — and 44 px minimum heights (§8.10.4).
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-collectjs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+
+  &__note,
+  &__working,
+  &__unavailable {
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-meta);
+    line-height: 1.6;
+    color: var(--ogp-read-text-dim);
+  }
+
+  &__field {
+    display: flex;
+    flex: 1 1 10rem;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  &__label {
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-meta);
+    color: var(--ogp-read-text-dim);
+  }
+
+  // The iframe Collect.js injects. Border contrast is non-text UI: >= 3:1 (§8.11).
+  &__host {
+    min-height: $ogp-touch-target;
+    border: 1px solid var(--ogp-read-text-dim);
+    background-color: var(--ogp-read-surface);
+
+    iframe {
+      display: block;
+      width: 100%;
+      height: $ogp-touch-target;
+      border: 0;
+    }
+  }
+
+  &__submit {
+    align-self: flex-start;
+
+    &:disabled {
+      color: var(--ogp-read-text-dim);
+      cursor: default;
+      text-shadow: none;
+    }
+  }
+}

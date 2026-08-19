@@ -1,0 +1,56 @@
+// =============================================================================
+// AudioOptIn
+//
+// The volume slider is present only while sound is on, so this partial styles two shapes:
+// a single quiet control, and that control with a slider beside it.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-audio-optin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &--panel {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  &__toggle {
+    @include quiet-control;
+
+    // The pressed state is carried by contrast, never by a badge, dot or counter.
+    &[aria-pressed='true'] {
+      color: var(--ogp-gold-text);
+    }
+  }
+
+  &__volume {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: $ogp-touch-target;
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-meta);
+    color: var(--ogp-read-text-dim);
+  }
+
+  // Visible label, never a placeholder standing in for one (§8.10.4).
+  &__volume-label {
+    white-space: nowrap;
+  }
+
+  input[type='range'] {
+    width: 7rem;
+    min-height: $ogp-touch-target;
+    accent-color: var(--ogp-gold-primary);
+    background: none;
+    cursor: pointer;
+
+    @include focus-ring;
+  }
+}

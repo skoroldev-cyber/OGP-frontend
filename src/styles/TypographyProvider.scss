@@ -1,0 +1,41 @@
+// =============================================================================
+// TypographyProvider — the 7 x 9 reading panel
+//
+// Desktop: a centred column whose width emulates the 7:9 printed page against the viewport
+// height, letterboxed in the ambient scene. Mobile: full-bleed with safe-area insets, the
+// same measure rules, the same type.
+//
+// Type tokens only. Nothing decorative lives in here (§3.4.3).
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-typography {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  // The opt-in light page is resolved once on the document element, so the whole experience
+  // moves with it (§8.8). `data-theme` is mirrored here as a hook, not as a second source
+  // of truth.
+
+  &__panel {
+    @include reading-panel;
+    @include reading-measure;
+
+    box-sizing: content-box;
+    background-color: var(--ogp-surface);
+    // Letterboxed: the panel is inset from the ambient field rather than filling it.
+    padding-block: clamp(2.5rem, 9vh, 6rem);
+    padding-inline: clamp(1.25rem, 4vw, 3rem);
+
+    @include respond-to(mobile) {
+      // Full-bleed with safe-area insets; measure preserved via the type scale (§3.11).
+      width: 100%;
+      padding-inline: max(1.25rem, env(safe-area-inset-left));
+      padding-block: clamp(1.5rem, 6vh, 3rem);
+    }
+  }
+}

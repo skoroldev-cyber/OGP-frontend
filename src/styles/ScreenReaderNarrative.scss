@@ -1,0 +1,46 @@
+// =============================================================================
+// ScreenReaderNarrative
+//
+// The live region is hidden outright. The parallel invitation is hidden until focused —
+// the skip-link idiom — so it is reachable by keyboard without placing an invisible
+// control in a sighted reader's tab order without warning.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-sr-narrative {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: $z-chrome;
+  pointer-events: none;
+
+  &__passage {
+    pointer-events: auto;
+  }
+
+  &__action {
+    @include visually-hidden;
+
+    &:focus,
+    &:focus-visible {
+      @include threshold-action;
+
+      position: fixed !important;
+      top: 1rem !important;
+      left: 50% !important;
+      width: auto !important;
+      height: auto !important;
+      margin: 0 !important;
+      clip: auto !important;
+      overflow: visible !important;
+      transform: translateX(-50%);
+      z-index: $z-veil;
+      // Over live canvas, so the scrim rule applies (§8.11).
+      padding: 0.75rem 1.25rem;
+      background: #{color.change($ogp-void-deep, $alpha: 0.92)};
+      font-size: var(--ogp-ui-size-panel-title);
+    }
+  }
+}

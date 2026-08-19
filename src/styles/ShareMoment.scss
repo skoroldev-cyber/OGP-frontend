@@ -1,0 +1,122 @@
+// =============================================================================
+// ShareMoment — S11
+//
+// One inline module in the reading column, quieter than the manuscript text: reduced
+// contrast, generous whitespace, no border, no card, no icon animation. Never a popup, an
+// overlay, a fixed element or an attention animation (§5.3).
+//
+// Four locked treatments:
+//   minimal      one line and one action
+//   quiet_inline the default
+//   isolated     its own screen-height section
+//   full_breath  isolated, with extended breathing space
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-share-moment {
+  @include reading-panel;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: center;
+  margin-inline: auto;
+  padding-block: clamp(2rem, 8vh, 4rem);
+  padding-inline: clamp(1.25rem, 4vw, 3rem);
+  text-align: center;
+
+  &__text {
+    max-width: 34ch;
+    font-family: var(--ogp-font-serif);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale));
+    line-height: var(--ogp-read-line-height);
+    // Quieter than the manuscript, and still past the 4.5:1 floor (§8.11).
+    color: var(--ogp-read-text-dim);
+    text-wrap: pretty;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  &__offer {
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale));
+  }
+
+  .ogp-affordance {
+    @include quiet-control;
+  }
+
+  &__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+
+    input {
+      width: min(100%, 28rem);
+      min-height: $ogp-touch-target;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--ogp-read-rule);
+      background-color: var(--ogp-read-surface);
+      color: var(--ogp-read-text);
+      font-family: var(--ogp-font-ui);
+      font-size: var(--ogp-ui-size-meta);
+      text-align: center;
+    }
+  }
+
+  &__link-label {
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-meta);
+    color: var(--ogp-read-text-dim);
+  }
+
+  // A statement, not a flourish: no animation, no colour change, no icon.
+  &__copied {
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-meta);
+    color: var(--ogp-read-text-dim);
+  }
+
+  // ---- Treatments -------------------------------------------------------------
+  &[data-treatment='minimal'] {
+    gap: 0.75rem;
+    padding-block: clamp(1.5rem, 5vh, 2.5rem);
+  }
+
+  &[data-treatment='isolated'] {
+    min-height: 100dvh;
+    justify-content: center;
+  }
+
+  &[data-treatment='full_breath'] {
+    min-height: 100dvh;
+    justify-content: center;
+    gap: clamp(2rem, 10vh, 6rem);
+    animation: ogp-share-breath var(--ogp-duration-threshold) var(--ogp-ease-enter) both;
+
+    @include reduced-motion {
+      animation: none;
+    }
+  }
+}
+
+@keyframes ogp-share-breath {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,94 @@
+// =============================================================================
+// OGP STYLE ENTRY POINT
+//
+// Imported once, from `src/main.jsx`.
+//
+// Order matters: tokens define the variables, mixins consume them, base applies them.
+// Component partials come last so they can override the shell without `!important`.
+//
+// Every per-component partial is registered here rather than imported from its component.
+// Two reasons, both structural:
+//
+//   1. **Deterministic cascade.** `main.jsx` imports `App` before this stylesheet, so a
+//      partial pulled in through a JS import would be injected BEFORE `base`, and the shell
+//      would silently win every specificity tie against the component it is meant to host.
+//   2. **No duplicated output.** A Sass module's CSS is emitted once per compilation unit.
+//      Every partial `@use`s the tokens and mixins, so thirty JS-imported partials would
+//      emit thirty copies of everything those modules carry. (This is also why the `:root`
+//      custom-property block lives in `_base.scss` rather than in `_ogp-tokens.scss`.)
+//
+// Sass has no optional `@use`, so a partial listed before its file exists fails the build:
+// this list is appended to as components land, never anticipated. What is NOT permitted in
+// any of them is a colour, duration, easing or font literal (BUILD_CONTRACT §0.10) — they
+// take those from:
+//
+//   @use 'ogp-tokens' as *;
+//   @use 'mixins' as *;
+// =============================================================================
+
+@use 'ogp-tokens';
+@use 'mixins';
+@use 'base';
+
+// ---- The one dialog, and the fields its contents share ------------------------
+@use 'Modal';
+
+// ---- Veils and the opening ---------------------------------------------------
+@use 'LoadingVeil';
+@use 'TransitionVeil';
+@use 'AccessibilityControls';
+@use 'AudioOptIn';
+@use 'ScreenReaderNarrative';
+@use 'PortalInvitation';
+@use 'ReadingRoomInvitation';
+
+// ---- The Reading Room --------------------------------------------------------
+@use 'AgeRangePrompt';
+@use 'NavigationMinimal';
+@use 'MilestoneHint';
+@use 'TypographyProvider';
+@use 'ReadingSurface';
+@use 'ManuscriptUnitView';
+@use 'ContentNotice';
+@use 'ResumeCard';
+@use 'ContinueAffordance';
+@use 'ReadingSettings';
+@use 'ReadingControls';
+@use 'ReadingNav';
+@use 'PassageMarks';
+@use 'PassageNote';
+
+// ---- Thresholds, sharing and completion --------------------------------------
+@use 'ShareMoment';
+@use 'ShareChannels';
+@use 'BecomeFamilyThreshold';
+@use 'ArcComplete';
+@use 'FeedbackForm';
+
+// ---- S14 pathways ------------------------------------------------------------
+@use 'ChoosePath';
+@use 'ContinueReading';
+@use 'ContributeFlow';
+@use 'HardcoverFlow';
+@use 'CollectJsFields';
+@use 'FamilyFlow';
+@use 'ShareFlow';
+
+// ---- Founding Reader surfaces ------------------------------------------------
+@use 'BetaReadingPage';
+@use 'Questionnaire';
+
+// ---- Operations panel, /admin-panel ------------------------------------------
+// A support surface outside the experience, and the one place §8.8 permits the token
+// family to be inverted into a light theme. Every rule below is scoped under
+// `.ogp-admin`, which exists only on that route, so nothing here can reach the reading
+// room. `admin-shell` is first: the other partials `@use` it for the inverted palette.
+@use 'admin/admin-shell';
+@use 'admin/admin-login';
+@use 'admin/admin-invitations';
+@use 'admin/admin-templates';
+@use 'admin/admin-feedback';
+@use 'admin/admin-cohorts';
+@use 'admin/admin-responses';
+@use 'admin/admin-metrics';
+@use 'admin/admin-audit';

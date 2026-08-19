@@ -1,0 +1,29 @@
+// =============================================================================
+// OPERATIONS PANEL — funnel metrics
+//
+// One bar per row, drawn from the number already printed beside it. It is a reading aid
+// on an internal instrument, not a gauge: no target line, no goal marker, no colour that
+// says a number is good or bad. §10.2 keeps these counts inside this panel — nothing
+// here has a reader-facing counterpart, and a completion total rendered back into the
+// experience would be a social-proof indicator (§14.4.1).
+// =============================================================================
+
+@use '../ogp-tokens' as *;
+@use '../mixins' as *;
+@use 'admin-shell' as shell;
+
+.ogp-admin-bar {
+  display: block;
+  width: min(14rem, 30vw);
+  height: 0.625rem;
+  background-color: shell.$admin-page;
+  border: 1px solid shell.$admin-line;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.ogp-admin-bar__fill {
+  display: block;
+  block-size: 100%;
+  background-color: shell.$admin-accent-soft;
+}

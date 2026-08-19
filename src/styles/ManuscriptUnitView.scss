@@ -1,0 +1,152 @@
+// =============================================================================
+// ManuscriptUnitView
+//
+// Manuscript body is supreme: nothing outranks it visually once reading begins (§8.4.3).
+// Every value here is a token. There is no ornament, no drop cap, no pull quote, no rule
+// the manuscript did not author.
+//
+// Contrast: `read-text` #efe9dc on `read-surface` #12110e is about 15:1 — past the 7:1
+// AAA floor long-form reading is held to (§8.11). Warm-shifted rather than maximal, to
+// avoid halation over a sixty-seven minute read (§8.8).
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-manuscript {
+  color: var(--ogp-surface-text);
+
+  // ---- Headings — the authored strings, never normalised ----------------------
+  &__heading {
+    font-family: var(--ogp-font-serif);
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--ogp-surface-text);
+    text-wrap: balance;
+  }
+
+  &__heading--1 {
+    margin-block: 0 calc(#{$read-para-space} * 3);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.5);
+    letter-spacing: $ui-caps-tracking;
+  }
+
+  &__heading--2 {
+    margin-block: calc(#{$read-para-space} * 4) calc(#{$read-para-space} * 1.5);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.25);
+  }
+
+  &__heading--3 {
+    margin-block: calc(#{$read-para-space} * 3) #{$read-para-space};
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.1);
+  }
+
+  // ---- Prose and stanzas ------------------------------------------------------
+  &__paragraph {
+    margin-block: 0 $read-para-space;
+    line-height: var(--ogp-read-line-height);
+    // The source uses block breaks, so there are no first-line indents (§8.4.1).
+    text-indent: 0;
+  }
+
+  &__stanza {
+    margin-block: calc(#{$read-para-space} * 1.5);
+    // Stanzas are set looser than prose; the breaks inside them are the author's.
+    line-height: var(--ogp-read-line-height-stanza);
+    text-wrap: pretty;
+  }
+
+  // ---- One-signature epigraphs -----------------------------------------------
+  // "When you see that signature, pause. Listen." The pause is rendered as space.
+  &__epigraph {
+    margin-block: calc(var(--ogp-read-line-height) * #{$ogp-epigraph-space} * 1em);
+    margin-inline: 0;
+    padding-inline-start: 1.25rem;
+    border-inline-start: 1px solid var(--ogp-read-rule);
+
+    &[data-fade='true'] {
+      animation: ogp-epigraph-in var(--ogp-epigraph-fade, 400ms) var(--ogp-ease-enter) both;
+    }
+
+    // Under reduced motion there is no fade at all (§3.4.1), and the media query is the
+    // belt to `data-fade`'s braces.
+    @include reduced-motion {
+      animation: none;
+    }
+  }
+
+  &__epigraph-lines {
+    font-family: var(--ogp-font-serif);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * #{$ogp-epigraph-scale});
+    line-height: 1.5;
+    // gold-text #cfae6e on the reading surface: about 7.5:1 (§8.11).
+    color: var(--ogp-gold-text);
+  }
+
+  &__attribution {
+    display: block;
+    margin-top: 0.75em;
+    font-family: var(--ogp-font-serif);
+    font-style: normal;
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 0.9);
+    color: var(--ogp-read-text-dim);
+  }
+
+  // ---- Micro-stories ----------------------------------------------------------
+  &__microstory {
+    margin-block: calc(#{$read-para-space} * 2.5);
+    padding: 1.25rem 1.25rem 0.5rem;
+    border: 1px solid var(--ogp-read-rule);
+    // One step away from the page surface (§8.4.1) — lighter on the dark page, deeper on
+    // the light one, so it is the same small lift in either theme.
+    background-color: color-mix(in srgb, var(--ogp-read-text) 5%, var(--ogp-read-surface));
+  }
+
+  &__microstory-title {
+    margin-block: 0 $read-para-space;
+    font-family: var(--ogp-font-serif);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 0.9);
+    font-weight: 600;
+    font-variant-caps: all-small-caps;
+    letter-spacing: $ui-caps-tracking;
+    color: var(--ogp-read-text-dim);
+    text-wrap: pretty;
+  }
+
+  // ---- Dividers and cues ------------------------------------------------------
+  &__divider {
+    width: 4rem;
+    margin-block: calc(#{$read-para-space} * 2.5);
+    margin-inline: auto;
+    border: 0;
+    border-top: 1px solid var(--ogp-read-rule);
+  }
+
+  &__cue {
+    margin-block: calc(#{$read-para-space} * 2) $read-para-space;
+    font-family: var(--ogp-font-serif);
+    font-style: italic;
+    line-height: var(--ogp-read-line-height);
+    color: var(--ogp-surface-text);
+    text-align: center;
+  }
+
+  strong {
+    font-weight: 700;
+  }
+
+  em {
+    font-style: italic;
+  }
+}
+
+@keyframes ogp-epigraph-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

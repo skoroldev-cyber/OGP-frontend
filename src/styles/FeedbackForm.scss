@@ -1,0 +1,208 @@
+// =============================================================================
+// FeedbackForm — the note after the arc (§3.13, §5.8)
+//
+// One scrollable page, single column, visible labels, 44 px targets (§8.10.4). The same
+// shape as the Questionnaire, because it is the same kind of surface: a reader writing, at
+// their own pace, with a way out at the bottom.
+//
+// Not in this file, and not to be added: a stepper, a progress bar, a percentage, a star, an
+// emoji, a score, a rating scale, or any treatment that makes the submit control louder than
+// the way back. The form is offered; it is not the price of continuing.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-feedback {
+  position: fixed;
+  inset: 0;
+  z-index: $z-reading-surface;
+  overflow-y: auto;
+  padding-block: clamp(2rem, 8vh, 5rem);
+  padding-inline: max(1.5rem, env(safe-area-inset-left));
+  background-color: var(--ogp-read-field);
+  font-family: var(--ogp-font-ui);
+  color: var(--ogp-read-text);
+
+  &__column {
+    @include reading-measure;
+
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    font-family: var(--ogp-font-ui);
+  }
+
+  &__title {
+    font-family: var(--ogp-font-serif);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.4);
+    font-weight: 400;
+    color: var(--ogp-read-text);
+  }
+
+  &__subtitle {
+    font-family: var(--ogp-font-serif);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.1);
+    font-weight: 400;
+    color: var(--ogp-read-text);
+  }
+
+  &__intro {
+    font-size: var(--ogp-ui-size-control);
+    line-height: 1.6;
+    color: var(--ogp-read-text-dim);
+    text-wrap: pretty;
+  }
+
+  &__note {
+    font-size: var(--ogp-ui-size-meta);
+    line-height: 1.5;
+    color: var(--ogp-read-text-dim);
+    text-wrap: pretty;
+  }
+
+  // Muted terracotta, never an alarm red, and never the only signal: the message is real
+  // text tied to its field with `aria-describedby` (§8.10.4).
+  &__problem {
+    font-size: var(--ogp-ui-size-meta);
+    line-height: 1.5;
+    color: var(--ogp-error);
+    text-wrap: pretty;
+  }
+
+  &__confirmation {
+    @include reading-measure;
+
+    padding-block: clamp(2rem, 12vh, 6rem);
+    text-align: center;
+  }
+
+  /* ---- The marked passages ------------------------------------------------ */
+
+  &__marks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__mark-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__mark {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    padding-left: 1rem;
+    // The same hairline the marked range carries in the manuscript, turned on its side: the
+    // reader recognises what they marked without the passage being re-typeset as a quotation.
+    border-left: 1px solid color-mix(in srgb, var(--ogp-gold-muted) 60%, transparent);
+  }
+
+  &__excerpt {
+    margin: 0;
+    font-family: var(--ogp-font-serif);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 0.95);
+    line-height: var(--ogp-read-line-height);
+    color: var(--ogp-read-text);
+    text-wrap: pretty;
+  }
+
+  &__discard {
+    align-self: flex-start;
+    padding-left: 0;
+    font-size: var(--ogp-ui-size-meta);
+  }
+
+  /* ---- Fields ------------------------------------------------------------- */
+
+  &__question {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    width: 100%;
+
+    // A visible label, always. A placeholder standing in for one disappears exactly when the
+    // reader needs it (§8.10.4).
+    > span:first-child {
+      font-size: var(--ogp-ui-size-meta);
+      color: var(--ogp-read-text-dim);
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      min-height: $ogp-touch-target;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--ogp-read-text-dim);
+      background-color: var(--ogp-read-surface);
+      color: var(--ogp-read-text);
+      font-family: var(--ogp-font-ui);
+      font-size: var(--ogp-ui-size-control);
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    textarea[aria-invalid='true'],
+    input[aria-invalid='true'] {
+      border-color: var(--ogp-error);
+    }
+  }
+
+  &__consent {
+    display: flex;
+    gap: 0.625rem;
+    align-items: center;
+    min-height: $ogp-touch-target;
+    cursor: pointer;
+
+    input {
+      width: 1.125rem;
+      height: 1.125rem;
+      min-height: 1.125rem;
+      accent-color: var(--ogp-gold-primary);
+      flex: 0 0 auto;
+    }
+
+    span {
+      font-size: var(--ogp-ui-size-control);
+      color: var(--ogp-read-text);
+      text-wrap: pretty;
+    }
+  }
+
+  /* ---- Actions ------------------------------------------------------------ */
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 2rem;
+    align-items: center;
+    margin-bottom: clamp(2rem, 10vh, 6rem);
+  }
+
+  &__submit {
+    // Sized to the surrounding UI rather than to a threshold invitation: sending a note is an
+    // ordinary act, and a display-size control here would make it the point of the screen.
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale));
+
+    &:disabled {
+      color: var(--ogp-read-text-dim);
+      cursor: default;
+      text-shadow: none;
+    }
+  }
+}

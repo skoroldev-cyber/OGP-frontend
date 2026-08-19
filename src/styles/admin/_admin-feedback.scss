@@ -1,0 +1,62 @@
+// =============================================================================
+// OPERATIONS PANEL — reader feedback
+//
+// The one place in this panel where the manuscript face appears. A marked passage is
+// the work itself, quoted back; setting it in the interface face would misrepresent
+// what the reader was looking at when they marked it. Everything around it stays Inter,
+// because everything around it is chrome.
+//
+// What the reader wrote is displayed, never edited: the triage route accepts a status
+// and staff notes and nothing else, and the layout says so by keeping the body outside
+// the form entirely.
+// =============================================================================
+
+@use '../ogp-tokens' as *;
+@use '../mixins' as *;
+@use 'admin-shell' as shell;
+
+.ogp-admin-feedback-body {
+  max-width: 68ch;
+  padding: 0.875rem 1rem;
+  background-color: shell.$admin-page;
+  border: 1px solid shell.$admin-line;
+  border-radius: shell.$admin-radius;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.ogp-admin-passages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ogp-admin-passage {
+  padding: 0.75rem 1rem;
+  background-color: shell.$admin-page;
+  border: 1px solid shell.$admin-line;
+  border-left: 3px solid shell.$admin-accent;
+  border-radius: shell.$admin-radius;
+}
+
+.ogp-admin-passage__unit {
+  color: shell.$admin-ink-dim;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--ogp-ui-size-meta);
+}
+
+.ogp-admin-passage__range {
+  font-family: var(--ogp-font-ui);
+}
+
+.ogp-admin-passage__excerpt {
+  max-width: 62ch;
+  margin-top: 0.5rem;
+  font-family: var(--ogp-font-serif);
+  font-size: 1.0625rem;
+  line-height: var(--ogp-read-line-height);
+  text-wrap: pretty;
+}

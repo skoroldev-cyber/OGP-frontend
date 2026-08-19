@@ -1,0 +1,35 @@
+// =============================================================================
+// LoadingVeil — S0–S1
+//
+// The full-black layered-gradient overlay. Its only motion is its dissolve, which GSAP
+// drives; nothing here animates on its own, and nothing here draws a progress indicator
+// of any kind (BUILD_CONTRACT §0.6).
+//
+// "NOT flat black" (§2.4.2): the layered radial gradients and the soft vignette are what
+// make the darkness read as depth rather than as a switched-off screen.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-loading-veil {
+  // Doubled class keeps this above `.ogp-veil` in `_base.scss` regardless of the order in
+  // which the two stylesheets are injected.
+  &.ogp-loading-veil {
+    z-index: $z-veil;
+    opacity: 1;
+    background:
+      radial-gradient(
+        ellipse 120% 90% at 50% 42%,
+        #{color.change($ogp-void-fog-near, $alpha: 0.9)} 0%,
+        #{$ogp-void-deep} 58%
+      ),
+      radial-gradient(
+        ellipse 130% 110% at 50% 50%,
+        #{color.change($ogp-void-vignette, $alpha: 0)} 38%,
+        #{color.change($ogp-void-vignette, $alpha: 0.85)} 100%
+      ),
+      linear-gradient(180deg, #{$ogp-void-deep} 0%, #{$ogp-void-vignette} 100%);
+  }
+}

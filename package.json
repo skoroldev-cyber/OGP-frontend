@@ -1,0 +1,48 @@
+{
+  "name": "ogp-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "One Global People — immersive threshold and Immersive Reading Room (S0–S14).",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "check:copy": "node scripts/check-prohibited-terms.mjs",
+    "check:tokens": "node scripts/check-token-parity.mjs",
+    "check:assets": "node scripts/check-assets.mjs",
+    "assets:textures": "node scripts/build-textures.mjs",
+    "assets:weave": "node scripts/build-weave-guides.mjs",
+    "assets:logo": "node scripts/build-logo-mark.mjs",
+    "assets": "npm run assets:textures && npm run assets:weave && npm run assets:logo",
+    "verify": "npm run lint && npm run check:copy && npm run check:tokens && npm run check:assets && npm run build"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.4.2",
+    "@splinetool/runtime": "^1.12.98",
+    "gsap": "^3.14.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.11.0",
+    "three": "^0.182.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.182.0",
+    "@vitejs/plugin-react": "^5.1.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "sass": "^1.97.1",
+    "vite": "^7.2.4",
+    "vite-plugin-compression": "^0.5.1"
+  }
+}

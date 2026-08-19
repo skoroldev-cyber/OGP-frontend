@@ -1,0 +1,100 @@
+// =============================================================================
+// HardcoverFlow
+//
+// The same quiet form language as the donation workflow, and deliberately no shared
+// stylesheet with it: the two workflows stay separate at every layer, including this one.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-hardcover {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: flex-start;
+  font-family: var(--ogp-font-ui);
+  color: var(--ogp-read-text);
+
+  &__back {
+    @include quiet-control;
+
+    padding-inline: 0;
+  }
+
+  &__title {
+    font-family: var(--ogp-font-serif);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.25);
+    font-weight: 400;
+    color: var(--ogp-read-text);
+  }
+
+  &__note,
+  &__confirmation {
+    font-family: var(--ogp-font-serif);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale));
+    line-height: var(--ogp-read-line-height);
+    color: var(--ogp-read-text-dim);
+    text-wrap: pretty;
+  }
+
+  &__confirmation {
+    color: var(--ogp-read-text);
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+
+    legend {
+      padding: 0;
+      margin-bottom: 0.5rem;
+      font-size: var(--ogp-ui-size-meta);
+      letter-spacing: $ui-caps-tracking;
+      text-transform: uppercase;
+      color: var(--ogp-read-text-dim);
+    }
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    width: 100%;
+
+    > span:first-child {
+      font-size: var(--ogp-ui-size-meta);
+      color: var(--ogp-read-text-dim);
+    }
+
+    input {
+      width: 100%;
+      min-height: $ogp-touch-target;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--ogp-read-text-dim);
+      background-color: var(--ogp-read-surface);
+      color: var(--ogp-read-text);
+    }
+
+    input[type='number'] {
+      max-width: 7rem;
+    }
+  }
+
+  &__problem {
+    font-size: var(--ogp-ui-size-control);
+    color: var(--ogp-error);
+  }
+
+  .ogp-invitation:disabled {
+    color: var(--ogp-read-text-dim);
+    cursor: default;
+    text-shadow: none;
+  }
+}

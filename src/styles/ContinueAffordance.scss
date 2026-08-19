@@ -1,0 +1,30 @@
+// =============================================================================
+// ContinueAffordance
+//
+// A hairline mark and a generous amount of nothing. The quiet space before it is a full
+// viewport where the unit's closing lands in silence, and a smaller breath otherwise.
+//
+// Touch target is 44 px in both axes (§8.10.4, §3.11).
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-continue {
+  &__silence {
+    // The breath after a unit's last line.
+    //
+    // Was 18vh, on top of another 12vh of action padding — about a third of a screen of
+    // nothing at the end of every page, which read as the page having failed to load rather
+    // than as quiet. The controls have moved to the rails, so this is now the whole of the
+    // trailing space, and it is sized as a pause rather than a gap.
+    height: clamp(2rem, 7vh, 4.5rem);
+  }
+
+  &[data-silence='true'] &__silence {
+    // The locked ending cues still get their full viewport of quiet (§3.4.2). It means
+    // something here precisely because it is not what every unit does.
+    height: 100dvh;
+  }
+}

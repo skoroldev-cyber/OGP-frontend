@@ -1,0 +1,173 @@
+// =============================================================================
+// NavigationMinimal
+//
+// One cluster, top edge, out of the manuscript column's way. It recedes to 0.25 opacity
+// while reading and returns to full contrast on any pointer or keyboard intent (§8.7) —
+// and because the receded state is opacity only, nothing leaves the tab order.
+//
+// The left of the cluster is an identity block: the woven mark, the organisation's name
+// beside it, and the reading position on a second line under the name. Three pieces of
+// information in the space the folio used to take alone, which is what lets the identity
+// exist at all in a room whose whole argument is that the manuscript holds the authority.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+/// The mark's worn size. It also sets the height of the identity block, because the two
+/// lines of text beside it are sized to sit exactly within it.
+$mark-size: clamp(1.75rem, 1.35rem + 1.1vw, 2.25rem);
+
+.ogp-nav-minimal {
+  &.ogp-nav-minimal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: $z-chrome;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.375rem 1rem;
+    padding-top: max(0.375rem, env(safe-area-inset-top));
+    // A scrim band, because the cluster sits over the ambient scene and over the manuscript
+    // scrolling beneath it (§8.11). The band reaches the bottom edge at the full scrim weight
+    // rather than fading out inside itself: the bar is as tall as its contents, and the two
+    // lines of identity made it tall enough that a gradient dying at 100% left the controls
+    // standing on bare page, unreadable against whatever line of the manuscript was passing
+    // behind them. The fade belongs below the bar, not across it — hence the tail.
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ogp-scrim) 72%, transparent) 0%,
+      color-mix(in srgb, var(--ogp-scrim) #{$ogp-scrim-opacity * 100%}, transparent) 100%
+    );
+    transition: opacity var(--ogp-duration-ui-gentle) var(--ogp-ease);
+
+    // The tail. Without it the band would end on a visible horizontal edge, which is exactly
+    // the "UI panel" reading that §8.7 keeps out of the room.
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      right: 0;
+      left: 0;
+      height: 1.5rem;
+      pointer-events: none;
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--ogp-scrim) #{$ogp-scrim-opacity * 100%}, transparent) 0%,
+        transparent 100%
+      );
+    }
+
+    &[data-receded='true'] {
+      opacity: $ogp-chrome-receded-opacity;
+    }
+
+    &:hover,
+    &:focus-within {
+      opacity: 1;
+    }
+  }
+
+  // The mark, then a stack of the two lines beside it. A grid spanning the mark down both
+  // rows would express the same thing in one element fewer, but the second row only exists
+  // when there is a position to report: at S9 the manuscript has not arrived, and an
+  // implicit row appearing underneath the name would drop the mark half a line the moment
+  // it did. A flex stack is the same picture and has no opinion about how many lines it holds.
+  &__identity {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    flex: 1 1 16rem;
+    min-width: 0;
+  }
+
+  &__identity-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    // No gap. The two lines set their own leading, and a gap on top of that would pull the
+    // name and the position apart into two unrelated pieces of chrome.
+    min-width: 0;
+  }
+
+  &__mark {
+    flex: none;
+    width: $mark-size;
+    height: $mark-size;
+    // The master is a square RGBA render of a woven torus, already transparent to its edge.
+    object-fit: contain;
+    // Never a target, never a drag source: it is identity, not a control (§7.3). Hover still
+    // reaches the cluster behind it, so passing over the mark restores the chrome as usual.
+    pointer-events: none;
+    // The mark is lit artwork sitting on an unlit field. A breath of its own colour beneath
+    // it keeps it from reading as a sticker cut out and pasted onto the room.
+    filter: drop-shadow(0 0 6px #{color.change($ogp-gold-deep, $alpha: 0.45)});
+
+    // On the opt-in light page the gold sits on a warm cream field, where a gold bloom is
+    // invisible at best and muddy at worst. It takes a shadow instead of a glow (§8.8).
+    :root[data-theme='light'] & {
+      filter: drop-shadow(0 1px 2px #{color.change($ogp-void-vignette, $alpha: 0.28)});
+    }
+  }
+
+  &__wordmark {
+    min-width: 0;
+    overflow: hidden;
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-control);
+    // Medium, not bold. The name should read as settled rather than as a shout, and the
+    // variable face has the weight to say that without changing size.
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: $ui-caps-tracking;
+    color: var(--ogp-read-text);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__folio {
+    min-width: 0;
+    overflow: hidden;
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-meta);
+    line-height: 1.25;
+    letter-spacing: $ui-caps-tracking;
+    // read-text-dim on the deep field: about 9:1 (§8.11). Dimmer than the name above it, so
+    // the pair reads as one thing with a subject and a subtitle rather than as two labels.
+    color: var(--ogp-read-text-dim);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .ogp-affordance {
+    @include quiet-control;
+  }
+
+  @include respond-to(mobile) {
+    // The identity keeps its shape on a phone — mark, name, position, in that arrangement —
+    // and takes the full width so the controls drop cleanly beneath it. Centring it instead
+    // would put a ragged two-line block over the middle of the page (§3.11).
+    &__identity {
+      flex-basis: 100%;
+      justify-content: flex-start;
+    }
+
+    &__controls {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}

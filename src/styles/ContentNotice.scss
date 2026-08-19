@@ -1,0 +1,46 @@
+// =============================================================================
+// ContentNotice
+//
+// Inline in the reading column, never an overlay. Quiet type, generous space, two options
+// of equal visual weight — the reader is not steered toward either one.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-content-notice {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 5vh, 3rem);
+  align-items: center;
+  min-height: 60vh;
+  justify-content: center;
+  padding-block: clamp(2rem, 8vh, 5rem);
+  text-align: center;
+
+  &__text {
+    max-width: 40ch;
+    font-family: var(--ogp-font-serif);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale));
+    line-height: var(--ogp-read-line-height);
+    color: var(--ogp-surface-text);
+    text-wrap: pretty;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__continue {
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.15);
+  }
+
+  .ogp-affordance {
+    @include quiet-control;
+  }
+}

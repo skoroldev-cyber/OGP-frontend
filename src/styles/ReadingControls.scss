@@ -1,0 +1,147 @@
+// =============================================================================
+// ReadingControls — the floating cluster (§3.9)
+//
+// Pinned to the trailing edge of the reading surface, vertically centred: within reach of a
+// thumb on a phone and out of the measure on a desktop. It recedes with the rest of the
+// chrome while reading and returns on intent (§8.7) — the manuscript is what the reader came
+// for, and nothing else may compete with it.
+// =============================================================================
+
+@use 'sass:color';
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+.ogp-reading-controls {
+  position: fixed;
+  top: 50%;
+  right: clamp(0.5rem, 2vw, 1.5rem);
+  z-index: $z-chrome;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: center;
+  padding: 0.4rem 0.3rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ogp-scrim) 55%, transparent);
+  transform: translateY(-50%);
+
+  // Receded while reading; full presence the moment the reader reaches for it. Never removed,
+  // because a control the reader cannot find is a control they do not have.
+  opacity: 0.25;
+  transition: opacity var(--ogp-duration-ui-gentle) var(--ogp-ease);
+
+  &:hover,
+  &:focus-within {
+    opacity: 1;
+  }
+
+  &__button {
+    display: flex;
+    width: 2.25rem;
+    height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ogp-read-text-dim);
+    cursor: pointer;
+    transition:
+      color var(--ogp-duration-ui-micro) var(--ogp-ease),
+      background-color var(--ogp-duration-ui-micro) var(--ogp-ease);
+
+    &:hover:not(:disabled),
+    &:focus-visible {
+      color: var(--ogp-read-text);
+      background: color-mix(in srgb, var(--ogp-scrim) 75%, transparent);
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+
+    // At the end of the scale the control stays present but inert: removing it would make the
+    // cluster change shape as the reader adjusts, which is more distracting than a dim button.
+    &:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+  }
+
+  &__glyph {
+    font-family: var(--ogp-font-serif);
+    line-height: 1;
+
+    &--small {
+      font-size: 0.8125rem;
+    }
+
+    &--large {
+      font-size: 1.25rem;
+    }
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Auto-reading is the one control with a state worth showing, so it carries the gold —
+  // sparingly, and only while it is actually running. The section mark carries the same
+  // treatment for the same reason: it is a state the reader set and can unset, not a score.
+  &__button--primary[aria-pressed='true'],
+  &__button--mark[aria-pressed='true'] {
+    color: var(--ogp-gold-text);
+  }
+
+  /// The pace dial: five rising bars, filled to the current step. A mark rather than a number.
+  &__pace {
+    display: flex;
+    height: 0.85rem;
+    align-items: flex-end;
+    gap: 1.5px;
+  }
+
+  &__pace-bar {
+    width: 2px;
+    border-radius: 1px;
+    background-color: currentcolor;
+    opacity: 0.25;
+    transition: opacity var(--ogp-duration-ui-micro) var(--ogp-ease);
+
+    &[data-on='true'] {
+      opacity: 1;
+    }
+
+    // Each bar a little taller than the last, so the control reads as a slope at a glance.
+    &:nth-child(1) { height: 25%; }
+    &:nth-child(2) { height: 40%; }
+    &:nth-child(3) { height: 58%; }
+    &:nth-child(4) { height: 78%; }
+    &:nth-child(5) { height: 100%; }
+  }
+
+  &__divider {
+    width: 1rem;
+    height: 1px;
+    background-color: var(--ogp-read-rule);
+    opacity: 0.7;
+  }
+
+  // Touch targets are 44 px even though the visual control is smaller (§8.10.4).
+  @include respond-to(mobile) {
+    right: 0.25rem;
+    gap: 0;
+
+    &__button {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+  }
+
+  // A reader who has asked for less motion still gets the state change, just not the fade.
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}

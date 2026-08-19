@@ -1,0 +1,675 @@
+// =============================================================================
+// OPERATIONS PANEL — shell, controls, tables
+//
+// §8.8: "Support surfaces outside the experience (privacy policy, legal, admin
+// dashboard) may invert the token family into a light theme." That is exactly what
+// this file does — and *only* that. Every value below is derived from a canonical
+// token in `_ogp-tokens.scss` by a lightness scale, so the panel is the same palette
+// read from the other end rather than a second, unrelated set of colours. Nothing
+// here introduces a hue the experience does not already own.
+//
+// §10.5: "Views use plain, information-dense internal styling — the cinematic design
+// mandate (§8) applies to the reader experience, not to this tool." So: no threshold
+// styling, no glow, no serif display type, no scrim, no scene. Inter throughout. The
+// manuscript face appears in exactly one place in this panel — a marked passage in
+// `_admin-feedback.scss` — because there it is quoting the work itself.
+//
+// Accessibility is not relaxed here (§8.10.4): real labels, 44 px targets, a visible
+// focus ring on every control, and a word beside every status colour.
+// =============================================================================
+
+@use 'sass:color';
+@use '../ogp-tokens' as *;
+@use '../mixins' as *;
+
+// ---- The inverted family ------------------------------------------------------
+// Warm paper rather than white: `#ffffff` is a prohibited background (§8.2.2), and a
+// tool that is read for an hour at a time should not be the brightest thing on the
+// desk.
+
+$admin-page: color.scale($ogp-read-text, $lightness: 32%);
+$admin-surface: color.scale($ogp-read-text, $lightness: 62%);
+$admin-raised: $ogp-read-text;
+$admin-line: color.scale($ogp-read-rule, $lightness: 74%);
+$admin-line-strong: color.scale($ogp-read-rule, $lightness: 52%);
+
+// Ink is the reading field, unchanged: the darkest token in the family, now carrying
+// the text instead of the background.
+$admin-ink: $ogp-read-field;
+// 22% rather than 44%: the higher scale washed metadata (codes, hints, pager) to a
+// grey that failed contrast on the paper surface.
+$admin-ink-dim: color.scale($ogp-read-field, $lightness: 22%);
+
+// The gold family's dark end. `$ogp-gold-text` and `$ogp-focus` are tuned for light on
+// void and fall below AA on paper, so the accent and the focus ring take `gold-deep`
+// and `gold-muted` — same family, correct end for this background.
+$admin-accent: $ogp-gold-deep;
+$admin-accent-soft: $ogp-gold-muted;
+$admin-focus: $ogp-gold-deep;
+
+$admin-error: color.scale($ogp-error, $lightness: -24%);
+$admin-error-field: color.scale($ogp-error, $lightness: 68%);
+$admin-success: color.scale($ogp-success, $lightness: -38%);
+$admin-success-field: color.scale($ogp-success, $lightness: 62%);
+$admin-caution-field: color.scale($ogp-gold-primary, $lightness: 64%);
+
+$admin-radius: 4px;
+$admin-gap: 1rem;
+
+/// The panel's focus ring. The canonical ring is 2 px `$ogp-focus` (§8.7) — a pale
+/// cream that is invisible on paper. Same rule, same geometry, the readable end of the
+/// same family. Never suppressed.
+@mixin admin-focus-ring {
+  &:focus {
+    outline: 2px solid $admin-focus;
+    outline-offset: 2px;
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $admin-focus;
+    outline-offset: 2px;
+  }
+}
+
+// The document behind the panel. `_base.scss` paints the body `void-deep` so the
+// reader never sees a white flash; on this surface that would show as a dark band
+// under a short page and behind an overscroll bounce.
+:root[data-surface='admin'] body {
+  background-color: $admin-page;
+}
+
+.ogp-admin {
+  min-height: 100dvh;
+  background-color: $admin-page;
+  color: $admin-ink;
+  font-family: var(--ogp-font-ui);
+  font-size: var(--ogp-ui-size-control);
+  line-height: 1.5;
+
+  // Beats the global ring from `_base.scss` in both specificity and source order.
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  [tabindex]:not([tabindex='-1']) {
+    @include admin-focus-ring;
+  }
+
+  a {
+    color: $admin-accent;
+  }
+}
+
+// ---- Layout -------------------------------------------------------------------
+
+.ogp-admin-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/// Present for everyone, visible on focus. The panel has one skip target because it
+/// has one repeated block of navigation.
+.ogp-admin-skip {
+  @include visually-hidden;
+
+  &:focus,
+  &:focus-visible {
+    position: fixed !important;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: $z-chrome;
+    width: auto !important;
+    height: auto !important;
+    padding: 0.75rem 1rem !important;
+    clip: auto !important;
+    margin: 0 !important;
+    background-color: $admin-surface;
+    border: 1px solid $admin-line-strong;
+    border-radius: $admin-radius;
+    color: $admin-ink;
+  }
+}
+
+.ogp-admin-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $admin-gap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  background-color: $admin-surface;
+  border-bottom: 1px solid $admin-line;
+}
+
+.ogp-admin-topbar__identity {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.ogp-admin-topbar__organisation {
+  font-weight: 600;
+  letter-spacing: $ui-caps-tracking;
+}
+
+.ogp-admin-topbar__surface {
+  color: $admin-ink-dim;
+  font-size: var(--ogp-ui-size-meta);
+  text-transform: uppercase;
+  letter-spacing: $ui-caps-tracking;
+}
+
+.ogp-admin-topbar__account {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  font-size: var(--ogp-ui-size-meta);
+}
+
+.ogp-admin-topbar__who-label {
+  color: $admin-ink-dim;
+}
+
+.ogp-admin-body {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: 0;
+
+  @include respond-to(mobile) {
+    flex-direction: column;
+  }
+}
+
+.ogp-admin-nav {
+  flex: 0 0 auto;
+  width: 15rem;
+  padding: 1rem 0.75rem;
+  border-right: 1px solid $admin-line;
+
+  @include respond-to(mobile) {
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid $admin-line;
+  }
+}
+
+.ogp-admin-nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @include respond-to(mobile) {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+.ogp-admin-nav__link {
+  display: flex;
+  align-items: center;
+  min-height: $ogp-touch-target;
+  padding: 0.5rem 0.75rem;
+  border-radius: $admin-radius;
+  color: $admin-ink;
+  text-decoration: none;
+
+  &:hover {
+    background-color: $admin-raised;
+  }
+
+  // The current section is named to assistive technology by `aria-current`; the tint
+  // and the rule are the visual echo of that, never the only signal.
+  &[aria-current='page'] {
+    background-color: $admin-raised;
+    box-shadow: inset 3px 0 0 0 $admin-accent;
+    font-weight: 600;
+  }
+}
+
+.ogp-admin-main {
+  flex: 1;
+  min-width: 0;
+  padding: 1.5rem;
+
+  @include respond-to(mobile) {
+    padding: 1rem;
+  }
+}
+
+// ---- Screen and panel ---------------------------------------------------------
+
+.ogp-admin-screen-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.ogp-admin-screen-heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.ogp-admin-screen-intro {
+  flex: 1 1 24rem;
+  max-width: 60ch;
+  color: $admin-ink-dim;
+}
+
+.ogp-admin-panel {
+  margin-bottom: 1.5rem;
+  background-color: $admin-surface;
+  border: 1px solid $admin-line;
+  border-radius: $admin-radius;
+}
+
+.ogp-admin-panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid $admin-line;
+}
+
+.ogp-admin-panel__heading {
+  font-size: var(--ogp-ui-size-panel-title);
+  font-weight: 600;
+}
+
+.ogp-admin-panel__description {
+  color: $admin-ink-dim;
+  font-size: var(--ogp-ui-size-meta);
+}
+
+.ogp-admin-panel__body {
+  padding: 1rem;
+}
+
+.ogp-admin-subheading {
+  margin-top: 1rem;
+  font-size: var(--ogp-ui-size-control);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: $ui-caps-tracking;
+  color: $admin-ink-dim;
+}
+
+// ---- Forms --------------------------------------------------------------------
+
+.ogp-admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: $admin-gap;
+}
+
+.ogp-admin-field {
+  display: flex;
+  // `flex: 0 0 auto`, NOT `1 1 14rem`.
+  //
+  // `.ogp-admin-form` is a COLUMN flex container, and in a column `flex-basis` sizes the main
+  // axis — the height. A 14rem basis therefore made every field 224px tall, which is why the
+  // sign-in form had a screen and a half of empty space between its three inputs. The basis was
+  // written for the horizontal case and only ever makes sense there.
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.ogp-admin-field-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $admin-gap;
+
+  // Inside a ROW, the basis means what it was meant to mean: a comfortable column width that
+  // wraps when there is not room for another.
+  > .ogp-admin-field {
+    flex: 1 1 14rem;
+  }
+
+  > .ogp-admin-field--wide {
+    flex-basis: 100%;
+  }
+}
+
+.ogp-admin-label {
+  font-size: var(--ogp-ui-size-meta);
+  font-weight: 600;
+  color: $admin-ink;
+}
+
+.ogp-admin-hint {
+  color: $admin-ink-dim;
+  font-size: var(--ogp-ui-size-meta);
+  max-width: 62ch;
+}
+
+.ogp-admin-input,
+.ogp-admin-select,
+.ogp-admin-textarea {
+  width: 100%;
+  min-height: $ogp-touch-target;
+  padding: 0.5rem 0.625rem;
+  background-color: $admin-page;
+  border: 1px solid $admin-line-strong;
+  border-radius: $admin-radius;
+  color: $admin-ink;
+  font-family: var(--ogp-font-ui);
+  font-size: var(--ogp-ui-size-control);
+}
+
+.ogp-admin-textarea {
+  min-height: 6rem;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.ogp-admin-textarea--tall {
+  min-height: 14rem;
+}
+
+.ogp-admin-textarea--code,
+.ogp-admin-input--code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.ogp-admin-input--code {
+  max-width: 10rem;
+  letter-spacing: 0.35em;
+}
+
+.ogp-admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.ogp-admin-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: $admin-gap;
+  align-items: start;
+  margin-bottom: $admin-gap;
+}
+
+// ---- Buttons ------------------------------------------------------------------
+
+.ogp-admin-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: $ogp-touch-target;
+  padding: 0.5rem 0.875rem;
+  background-color: $admin-surface;
+  border: 1px solid $admin-line-strong;
+  border-radius: $admin-radius;
+  color: $admin-ink;
+  font-family: var(--ogp-font-ui);
+  font-size: var(--ogp-ui-size-control);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--ogp-duration-ui-micro) var(--ogp-ease);
+
+  &:hover {
+    background-color: $admin-raised;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.ogp-admin-button--primary {
+  background-color: $admin-accent;
+  border-color: $admin-accent;
+  color: $ogp-gold-core;
+
+  &:hover {
+    background-color: $admin-accent-soft;
+    border-color: $admin-accent-soft;
+  }
+}
+
+.ogp-admin-button--danger {
+  background-color: $admin-error;
+  border-color: $admin-error;
+  color: $admin-page;
+
+  &:hover {
+    background-color: $admin-error;
+  }
+}
+
+.ogp-admin-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  align-items: stretch;
+
+  .ogp-admin-button {
+    flex: 1 1 auto;
+    white-space: nowrap;
+  }
+}
+
+// ---- Tables -------------------------------------------------------------------
+
+/// Wide tables scroll inside their own box rather than pushing the page sideways.
+.ogp-admin-table-scroll {
+  overflow-x: auto;
+  border: 1px solid $admin-line;
+  border-radius: $admin-radius;
+}
+
+.ogp-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--ogp-ui-size-meta);
+
+  th,
+  td {
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid $admin-line;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background-color: $admin-raised;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  tbody tr[data-selected='true'] {
+    background-color: $admin-raised;
+  }
+}
+
+.ogp-admin-table__address {
+  word-break: break-word;
+}
+
+.ogp-admin-table__code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: $admin-ink;
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.ogp-admin-table__number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+// ---- Status tags --------------------------------------------------------------
+// The tint is decoration. The word inside is the information (§8.10.4).
+
+.ogp-admin-tag {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: var(--ogp-ui-size-meta);
+  white-space: nowrap;
+
+  &[data-tone='neutral'] {
+    background-color: $admin-raised;
+    border-color: $admin-line-strong;
+    color: $admin-ink;
+  }
+
+  &[data-tone='quiet'] {
+    border-color: $admin-line-strong;
+    color: $admin-ink-dim;
+  }
+
+  &[data-tone='positive'] {
+    background-color: $admin-success-field;
+    border-color: $admin-success;
+    color: $admin-success;
+  }
+
+  &[data-tone='caution'] {
+    background-color: $admin-caution-field;
+    border-color: $admin-accent;
+    color: $admin-accent;
+  }
+
+  &[data-tone='negative'] {
+    background-color: $admin-error-field;
+    border-color: $admin-error;
+    color: $admin-error;
+  }
+}
+
+// ---- Notices, states, pager ---------------------------------------------------
+
+.ogp-admin-notice {
+  margin-bottom: $admin-gap;
+  padding: 0.75rem 1rem;
+  border: 1px solid $admin-line-strong;
+  border-left-width: 4px;
+  border-radius: $admin-radius;
+  background-color: $admin-page;
+
+  &[data-tone='error'] {
+    border-color: $admin-error;
+    background-color: $admin-error-field;
+  }
+
+  &[data-tone='success'] {
+    border-color: $admin-success;
+    background-color: $admin-success-field;
+  }
+}
+
+.ogp-admin-notice__title {
+  font-weight: 600;
+}
+
+.ogp-admin-notice__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+  max-width: 72ch;
+}
+
+.ogp-admin-notice__detail {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--ogp-ui-size-meta);
+}
+
+.ogp-admin-state {
+  padding: 0.75rem 0;
+  color: $admin-ink-dim;
+}
+
+.ogp-admin-pager {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+}
+
+.ogp-admin-pager__position {
+  color: $admin-ink-dim;
+  font-size: var(--ogp-ui-size-meta);
+}
+
+// ---- Description lists --------------------------------------------------------
+
+.ogp-admin-meta,
+.ogp-admin-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: $admin-gap;
+}
+
+.ogp-admin-meta__pair,
+.ogp-admin-counts__pair {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+
+  dt {
+    color: $admin-ink-dim;
+    font-size: var(--ogp-ui-size-meta);
+  }
+
+  dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.ogp-admin-code {
+  padding: 0.05rem 0.3rem;
+  background-color: $admin-raised;
+  border: 1px solid $admin-line;
+  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--ogp-ui-size-meta);
+}
+
+.ogp-admin-pre {
+  max-height: 24rem;
+  overflow: auto;
+  margin: 0;
+  padding: 0.75rem;
+  background-color: $admin-page;
+  border: 1px solid $admin-line;
+  border-radius: $admin-radius;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--ogp-ui-size-meta);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

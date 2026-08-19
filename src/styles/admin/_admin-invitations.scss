@@ -1,0 +1,106 @@
+// =============================================================================
+// OPERATIONS PANEL — invitations
+//
+// The address preview and the per-address result table. Both are lists of facts about
+// individual people, so both are set at full contrast and neither is ever collapsed
+// behind a summary: the whole point of the screen is that what will happen, and then
+// what did happen, is visible one line at a time.
+// =============================================================================
+
+@use '../ogp-tokens' as *;
+@use '../mixins' as *;
+@use 'admin-shell' as shell;
+
+.ogp-admin-compose {
+  max-width: 60rem;
+}
+
+.ogp-admin-preview {
+  padding: 0.75rem;
+  background-color: shell.$admin-page;
+  border: 1px solid shell.$admin-line;
+  border-radius: shell.$admin-radius;
+}
+
+.ogp-admin-preview__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 18rem;
+  overflow-y: auto;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ogp-admin-preview__item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid shell.$admin-line;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.ogp-admin-preview__address {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  word-break: break-word;
+}
+
+.ogp-admin-results {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid shell.$admin-line;
+
+  .ogp-admin-button {
+    margin-top: 0.75rem;
+  }
+}
+
+.ogp-admin-invitations-table {
+  table-layout: fixed;
+  th:nth-child(1),
+  td:nth-child(1) {
+    width: 22%;
+  }
+
+  th:nth-child(2),
+  td:nth-child(2) {
+    width: 16%;
+  }
+
+  th:nth-child(3),
+  td:nth-child(3) {
+    width: 20%;
+  }
+
+  th:nth-child(4),
+  td:nth-child(4) {
+    width: 14%;
+  }
+
+  th:nth-child(5),
+  td:nth-child(5) {
+    width: 14%;
+    white-space: nowrap;
+  }
+
+  th:nth-child(6),
+  td:nth-child(6) {
+    width: 14%;
+  }
+}
+
+.ogp-admin-table__empty {
+  color: shell.$admin-ink-dim;
+}
+
+.ogp-admin-row-feedback {
+  margin: 0.5rem 0 0;
+  min-width: 12rem;
+}
