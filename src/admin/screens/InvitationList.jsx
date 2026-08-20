@@ -1,16 +1,3 @@
-/**
- * The invitation records, with the two per-row acts that matter: send again, and withdraw.
- *
- * Withdrawal is a two-press action rendered in place — the button becomes a confirm and a
- * cancel, side by side, and nothing is covered or trapped. A dialog would be the wrong shape
- * twice over: §14.4.1 bans forced overlays, and a modal here would hide the row whose address
- * the operator is checking against.
- *
- * The text filter searches the rows already loaded and says so. The list route takes a cohort
- * and a status and nothing else, so a client-side filter is the honest thing to offer: it
- * cannot pretend to reach records the server has not sent.
- */
-
 import { useCallback, useId, useMemo, useState } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -24,11 +11,6 @@ import { ResourceState } from '@/admin/components/ResourceState';
 import { StatusTag } from '@/admin/components/StatusTag';
 import { useAdminResource } from '@/admin/useAdminResource';
 
-/**
- * @param {object} invitation One record.
- * @param {string} needle The lowercased search text.
- * @returns {boolean} Whether the row matches.
- */
 const matches = (invitation, needle) => {
   if (needle === '') return true;
   const haystack = [invitation.email, invitation.displayName, invitation.code]
@@ -38,11 +20,6 @@ const matches = (invitation, needle) => {
   return haystack.includes(needle);
 };
 
-/**
- * @param {{ cohorts: object[], reloadSignal: number }} props Reference data, and a counter
- *        the compose panel increments after a send so the list re-reads itself.
- * @returns {import('react').ReactElement} The list panel.
- */
 export function InvitationList({ cohorts, reloadSignal }) {
   const ids = useId();
 
@@ -56,9 +33,6 @@ export function InvitationList({ cohorts, reloadSignal }) {
   const [rowNotice, setRowNotice] = useState(null);
 
   const load = useCallback(() => {
-    // A dependency, not a parameter: the compose panel increments the counter after a send,
-    // which changes this callback's identity and so re-reads the page the operator is
-    // already looking at, filters and paging intact.
     void reloadSignal;
     return adminApi.listInvitations({
       ...(status === '' ? {} : { status }),
@@ -70,8 +44,6 @@ export function InvitationList({ cohorts, reloadSignal }) {
 
   const { status: readStatus, data, error, reload } = useAdminResource(load);
 
-  // Memoised so the empty-array fallback is not a fresh identity on every render, which
-  // would defeat the filter's own memo below.
   const invitations = useMemo(() => data?.invitations ?? [], [data]);
   const needle = find.trim().toLowerCase();
   const visible = useMemo(
@@ -79,12 +51,6 @@ export function InvitationList({ cohorts, reloadSignal }) {
     [invitations, needle],
   );
 
-  /**
-   * @param {string} id The invitation identifier.
-   * @param {() => Promise<unknown>} act The mutation.
-   * @param {string} confirmation What to say when it worked.
-   * @returns {Promise<void>} Resolves when the row settles.
-   */
   const run = async (id, act, confirmation) => {
     setBusyId(id);
     setRowNotice(null);

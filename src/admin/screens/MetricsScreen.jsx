@@ -1,19 +1,3 @@
-/**
- * The S0→S14 funnel. Read-only, aggregate only.
- *
- * §10.4.1 fixes the shape: per-state session counts, step conversion (Sₙ₊₁/Sₙ) and cumulative
- * conversion (Sₙ/S0). §10.2 fixes what may not exist beside them — no per-reader browsing
- * view, no session replay, no individual timeline. There is no route in this panel that could
- * produce one, and no age or content-layer dimension in any metrics shape to slice by.
- *
- * The bars are proportion, drawn from the numbers already in the row. They are an internal
- * instrument, never rendered back into the reader experience: a completion total in
- * reader-facing UI would be a social-proof indicator, which §14.4.1 prohibits outright.
- *
- * §10.4.2's sentence is printed under the table verbatim, because a pacing panel read without
- * it invites exactly the wrong conclusion about the skip path.
- */
-
 import { useCallback, useId, useState } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -23,9 +7,6 @@ import { Panel } from '@/admin/components/Panel';
 import { ResourceState } from '@/admin/components/ResourceState';
 import { useAdminResource } from '@/admin/useAdminResource';
 
-/**
- * @returns {import('react').ReactElement} The metrics screen.
- */
 export function MetricsScreen() {
   const ids = useId();
 
@@ -137,9 +118,6 @@ export function MetricsScreen() {
                         {formatRatio(step.cumulativeConversion)}
                       </td>
                       <td>
-                        {/* Presentation of the number in the previous cell. `aria-hidden`
-                            because a screen reader has already been given the count and the
-                            ratio; reading the bar too would say the same thing three times. */}
                         <span className="ogp-admin-bar" aria-hidden="true">
                           <span
                             className="ogp-admin-bar__fill"

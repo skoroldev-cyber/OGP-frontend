@@ -1,18 +1,3 @@
-/**
- * One reader's observations, with the passages they marked.
- *
- * The excerpts are the only place in this panel set in the manuscript face. Everything else
- * is Inter, because everything else is chrome; a marked passage is the work itself, quoted,
- * and setting it in the interface face would misrepresent what the reader was looking at.
- *
- * What the reader wrote is read-only. The triage route accepts a status and staff notes and
- * nothing else — `body`, `category`, `passages` and the contact fields are absent from it by
- * design, so the people reviewing feedback cannot edit the words they are reviewing.
- *
- * A screen of its own rather than a drawer over the list: a route can be linked, reloaded and
- * left with the back button, and §14.4.1's ban on forced overlays applies to staff too.
- */
-
 import { useCallback, useId, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
@@ -27,9 +12,6 @@ import { ResourceState } from '@/admin/components/ResourceState';
 import { StatusTag } from '@/admin/components/StatusTag';
 import { useAdminResource } from '@/admin/useAdminResource';
 
-/**
- * @returns {import('react').ReactElement} The feedback detail screen.
- */
 export function FeedbackDetail() {
   const { feedbackId } = useParams();
   const ids = useId();
@@ -43,15 +25,9 @@ export function FeedbackDetail() {
   const [saved, setSaved] = useState(false);
   const [failure, setFailure] = useState(null);
 
-  // Derived, never seeded by an effect: the fetched record is the default and an edit in
-  // progress is an override on top of it, so a re-read cannot discard what is being typed.
   const triageStatus = triage.status ?? record?.status ?? '';
   const adminNotes = triage.adminNotes ?? record?.adminNotes ?? '';
 
-  /**
-   * @param {import('react').FormEvent} event The submission.
-   * @returns {Promise<void>} Resolves when the triage is stored or refused.
-   */
   const onSave = async (event) => {
     event.preventDefault();
     setSaving(true);

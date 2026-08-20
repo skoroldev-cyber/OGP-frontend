@@ -1,23 +1,3 @@
-/**
- * DepthParticles — S1 Darkness. "The ordinary world disappears."
- *
- * The controlling sentence is a negative one: "Deep black, NOT flat black — layered
- * gradients, atmospheric fog, soft vignette, subtle depth particles" (§2.4.2). A flat fill
- * is a wall; the reader has to be able to feel that there is somewhere to go before there
- * is anything to see. Four layers do that:
- *
- *   1. A full-screen gradient pass: `void-deep` lifted by `void-fog-near` toward the
- *      centre, plus one off-axis lobe so the field is not a symmetrical target.
- *   2. A soft vignette toward `void-vignette` — the ONLY place pure black appears.
- *   3. Per-pixel dither. At these luminances 8-bit quantisation bands visibly across the
- *      whole viewport; B-001 forbids that, so the dither is not optional.
- *   4. Depth motes in `void-particle`, drifting below conscious tracking speed and
- *      trailing the camera, which is what turns the S6 dolly into perceived travel.
- *
- * "Do not brighten the darkness for usability" (§2.3 quality 4): the gradient's whole
- * dynamic range is between #030307 and #06060c.
- */
-
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -27,34 +7,21 @@ import { SCENE } from '@/components/canvas/shared/sceneLayout';
 import { STAGE } from '@/components/canvas/shared/stageStore';
 import { createRandom } from '@/components/canvas/opening/weaveGuides';
 
-/* -------------------------------------------------------------------------- */
-/* Module scope                                                                */
-/* -------------------------------------------------------------------------- */
-
 const _cameraPosition = new THREE.Vector3();
 
-/** Seed for the mote distribution. Deterministic, so the reduced-motion still matches. */
 const MOTE_SEED = 0x1d0a;
 
-/**
- * How far a mote may wander from its seeded position, in world units. Paired with
- * `driftRate` below so that peak speed never exceeds `OGP_MOTION.driftMaxUnitsPerSec` —
- * amplitude is spatial, the SPEED is the token.
- */
 const MOTE_DRIFT_AMPLITUDE = 1.4;
 
-const BACKDROP_VERTEX = /* glsl */ `
+const BACKDROP_VERTEX =  `
 varying vec2 vScreenUv;
 void main() {
   vScreenUv = uv;
-  // A full-screen quad in clip space. The backdrop must be independent of where the
-  // camera is, because the camera travels 220 units across the session and the darkness
-  // does not travel with it — the darkness IS the room.
   gl_Position = vec4(position.xy * 2.0, 1.0, 1.0);
 }
 `;
 
-const BACKDROP_FRAGMENT = /* glsl */ `
+const BACKDROP_FRAGMENT =  `
 uniform vec3 uVoidDeep;
 uniform vec3 uFogNear;
 uniform vec3 uVignette;
@@ -69,26 +36,21 @@ void main() {
   vec2 centred = (vScreenUv - 0.5) * vec2(uAspect, 1.0);
   float radius = length(centred);
 
-  // Layer 1 — the near fog, gathered a little above the optical centre so the frame has
-  // a horizon rather than a bullseye.
   float core = 1.0 - smoothstep(0.04, 0.62, length(centred - vec2(0.0, 0.06)));
-  // Layer 2 — one quiet off-axis lobe. Asymmetry is what stops the void reading as a lens.
   float lobe = 1.0 - smoothstep(0.1, 0.78, length(centred - vec2(-0.26, -0.2)));
 
   vec3 color = uVoidDeep;
   color = mix(color, uFogNear, core * 0.85 * uPresence);
   color = mix(color, uFogNear, lobe * 0.3 * uPresence);
 
-  // Layer 3 — the vignette. The only pure black in the experience lives at the edge.
   float vignette = smoothstep(0.42, 0.95, radius);
   color = mix(color, uVignette, vignette * 0.9);
 
-  // Layer 4 — de-band. Sub-LSB noise: invisible as grain, decisive against banding.
   gl_FragColor = vec4(ogpDeband(color, gl_FragCoord.xy), 1.0);
 }
 `;
 
-const MOTE_VERTEX = /* glsl */ `
+const MOTE_VERTEX =  `
 attribute vec3 aSeed;
 
 uniform float uTime;
@@ -124,7 +86,7 @@ void main() {
 }
 `;
 
-const MOTE_FRAGMENT = /* glsl */ `
+const MOTE_FRAGMENT =  `
 uniform vec3 uColor;
 varying float vAlpha;
 
@@ -138,14 +100,6 @@ void main() {
 }
 `;
 
-/**
- * @param {{
- *   tier: 'HIGH'|'MEDIUM'|'LOW',
- *   settings: { particleScale: number },
- *   reducedMotion: boolean,
- *   aspect: number,
- * }} props
- */
 export const DepthParticles = ({ tier, settings, reducedMotion, aspect }) => {
   const backdropRef = useRef(null);
   const backdropMaterialRef = useRef(null);
@@ -154,9 +108,6 @@ export const DepthParticles = ({ tier, settings, reducedMotion, aspect }) => {
   const followRef = useRef(null);
   const elapsed = useRef(0);
 
-  // Allocated ONCE at the tier detected on first render. `particleScale` thins the field
-  // through the draw range instead, so a mid-session downgrade never re-allocates a
-  // buffer in front of the reader (`PerformanceContext`: "without re-allocating a buffer").
   const [budget] = useState(() => ({
     count: budgetForTier(PARTICLE_COUNTS.depth, tier),
     scale: settings.particleScale,
@@ -218,9 +169,6 @@ export const DepthParticles = ({ tier, settings, reducedMotion, aspect }) => {
     [],
   );
 
-  // Uniform values are written through the MATERIAL, never through the object that
-  // constructed it: the constructed object belongs to the render, the material belongs to
-  // the frame loop, and only one of those two is allowed to change after render.
   useEffect(() => {
     const material = motesMaterialRef.current;
     if (material) material.uniforms.uReduced.value = reducedMotion ? 1 : 0;
@@ -257,8 +205,6 @@ export const DepthParticles = ({ tier, settings, reducedMotion, aspect }) => {
     motes.visible = presence > 0.002;
     if (!motes.visible) return;
 
-    // The field TRAILS the camera rather than riding it. During the S6 dolly the lag is
-    // what the reader reads as speed; at rest the field settles and the lag vanishes.
     state.camera.getWorldPosition(_cameraPosition);
     const lambda = reducedMotion ? 1e3 : SCENE.depthField.followLambda;
     motes.position.x = THREE.MathUtils.damp(motes.position.x, _cameraPosition.x, lambda, dt);

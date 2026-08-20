@@ -1,11 +1,3 @@
-// =============================================================================
-// PassageNote — the note a reader leaves on a marked passage while reading.
-//
-// The reader's own passage is quoted at the top, because it is the reference the note
-// travels with and seeing it is how they know the words will arrive attached to the right
-// sentence.
-// =============================================================================
-
 @use 'sass:color';
 @use 'ogp-tokens' as *;
 @use 'mixins' as *;
@@ -28,8 +20,6 @@
     color: var(--ogp-gold-text);
   }
 
-  // The manuscript's own face, at the manuscript's own weight: this is the book speaking,
-  // not the interface quoting it back.
   &__excerpt {
     margin: 0;
     font-family: var(--ogp-font-serif);
@@ -38,7 +28,6 @@
     color: var(--ogp-read-text);
   }
 
-  // The box and its sentence read as one line, so what ticking it does is never a footnote.
   &__consent {
     display: flex;
     gap: 0.6rem;

@@ -1,23 +1,3 @@
-/**
- * The line icons for the share channels and the note action.
- *
- * §8.7 specifies the house set exactly: line icons, 1.5 px stroke on a 20 px grid,
- * `read-text-dim` by default and `gold-primary` when active. These are drawn to that
- * description and take their colour from `currentColor`, so a row that lights on hover lights
- * its icon with it and no rule has to know about both.
- *
- * **They are not brand marks, and that is deliberate rather than an omission.** A WhatsApp
- * green speech bubble or the LinkedIn glyph would put two companies' identities inside a
- * reading environment that carries no third-party anything (§10.3.3), and would dress a
- * channel that is not yet built in the livery of one that works. What each icon says is the
- * *kind* of handoff — a letter, a message, a network of people — which is the part the reader
- * is actually choosing between.
- *
- * `aria-hidden` throughout: every icon here sits beside its own text label, and announcing
- * both would read the same thing twice.
- */
-
-/** The §8.7 grid and stroke, applied identically to every glyph so the set looks like a set. */
 const BASE = {
   width: 20,
   height: 20,
@@ -32,21 +12,18 @@ const BASE = {
 };
 
 const GLYPHS = {
-  /** A letter: the flap is what makes it read as mail rather than as a card. */
   email: (
     <>
       <rect x="2.25" y="4.25" width="15.5" height="11.5" rx="1.75" />
       <path d="M3 5.5l6.02 4.6a1.6 1.6 0 0 0 1.96 0L17 5.5" />
     </>
   ),
-  /** A message: a bubble with a tail, the shape every chat application shares. */
   whatsapp: (
     <>
       <path d="M17 9.6c0 3.35-2.98 6.07-6.65 6.07a7.2 7.2 0 0 1-2.53-.45L3.5 16.5l1.34-3.1A5.85 5.85 0 0 1 3.7 9.6c0-3.35 2.98-6.07 6.65-6.07S17 6.25 17 9.6Z" />
       <path d="M7.9 8.55h4.9M7.9 11.05h3.1" />
     </>
   ),
-  /** People connected: a professional network, without the network's own mark. */
   linkedin: (
     <>
       <circle cx="6.6" cy="6.4" r="2.15" />
@@ -55,7 +32,6 @@ const GLYPHS = {
       <path d="M8.35 8.1l3.5 3.1" />
     </>
   ),
-  /** A page with writing on it: the note a reader leaves. */
   note: (
     <>
       <path d="M4.5 3.75h7.4l4.1 4.05v8.45a1.5 1.5 0 0 1-1.5 1.5H4.5a1.5 1.5 0 0 1-1.5-1.5V5.25a1.5 1.5 0 0 1 1.5-1.5Z" />
@@ -63,7 +39,6 @@ const GLYPHS = {
       <path d="M6.3 11.1h7M6.3 13.7h4.6" />
     </>
   ),
-  /** Quotation marks: the passage the note is about. */
   passage: (
     <>
       <path d="M8.3 5.4C6.2 6.3 5 8 5 10.1c0 1.7 1 2.9 2.5 2.9S10 11.9 10 10.5 9.1 8.2 7.9 8.2c-.3 0-.6 0-.8.2" />
@@ -72,9 +47,6 @@ const GLYPHS = {
   ),
 };
 
-/**
- * @param {{ name: keyof typeof GLYPHS, className?: string }} props
- */
 export const ChannelIcon = ({ name, className = '' }) => {
   const glyph = GLYPHS[name];
   if (!glyph) return null;

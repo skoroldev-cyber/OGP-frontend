@@ -1,34 +1,3 @@
-/**
- * The single quiet settings affordance (master §3.9).
- *
- * Available from S9 onward, corner placement, never overlaying text. Every control is
- * honoured instantly and persisted; none is account-gated. Escape closes it, and so does a
- * press anywhere outside it.
- *
- * The complete surface, and nothing beyond it:
- *
- * | Setting            | Options                        | Default                     |
- * |--------------------|--------------------------------|-----------------------------|
- * | Text size          | 5 steps, 0.875x–1.5x           | 1x                          |
- * | Theme              | Deep field / Light page        | Deep field                  |
- * | Audio              | Off / Ambient                  | **Off**                     |
- * | Experience depth   | six age layers                 | current — flag-gated only   |
- * | Remember my place  | On / Off                       | On (device)                 |
- * | Language           | reserved                       | —                           |
- * | Position mark      | On / Off                       | **Off**                     |
- *
- * What is deliberately absent, permanently: **no streaks, no reading goals, no progress
- * celebrations, no percentage read, no time-remaining estimate, no session statistics.**
- * The hairline position mark is the only progress affordance the corpus permits, and it is
- * off by default because "optional progress … never obstructs reading".
- *
- * This is a disclosure, not a modal — there are no modals in S8–S13. Focus is nevertheless
- * kept inside it while it is open, because a settings panel a keyboard reader can tab out
- * of, into text they cannot see, is its own kind of trap; and Escape always closes, so the
- * containment can never become one. Nothing is dimmed or blocked behind it: turning back to
- * the page is itself the dismissal.
- */
-
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -40,19 +9,10 @@ import { READING_THEMES } from '@/experience/states';
 import { useExperience } from '@/experience/ExperienceProvider';
 import { trapFocus } from '@/utils/dom';
 
-/** Volume slider granularity — the same step the affordance cluster uses. */
 const VOLUME_STEP = 0.05;
 
-/**
- * Marks the chrome control that opens this panel.
- *
- * That control toggles, so a press on it must not also count as a press outside: the panel
- * would close here, the button's own handler would then find it closed and open it again,
- * and the reader would have pressed a button that appeared to do nothing.
- */
 const TOGGLE_ATTR = 'data-ogp-settings-toggle';
 
-/** Spread onto the control that opens the panel. */
 export const settingsToggleProps = Object.freeze({ [TOGGLE_ATTR]: '' });
 
 const THEME_OPTIONS = [
@@ -65,9 +25,6 @@ const AUDIO_OPTIONS = [
   { value: 'ambient', label: COPY.SETTINGS.AUDIO_AMBIENT },
 ];
 
-/**
- * @param {{ open: boolean, onClose: () => void }} props
- */
 export const ReadingSettings = ({ open, onClose }) => {
   const { settings, setSetting } = useReading();
   const { setAgeBand, ageBand } = useExperience();
@@ -76,7 +33,6 @@ export const ReadingSettings = ({ open, onClose }) => {
   const panelRef = useRef(null);
   const [confirmingClear, setConfirmingClear] = useState(false);
 
-  // Escape always closes. The containment is released the instant the panel does.
   useEffect(() => {
     if (!open) return undefined;
     const node = panelRef.current;
@@ -85,10 +41,6 @@ export const ReadingSettings = ({ open, onClose }) => {
     return release;
   }, [open, onClose]);
 
-  // Pressing anywhere else closes it too, which is what a disclosure in the corner of the
-  // room should do — the reader dismisses it by returning to the page, not by finding the
-  // control again. Capture phase and `pointerdown`, so a press that lands on the manuscript
-  // dismisses the panel on the way down rather than after a full click completes.
   useEffect(() => {
     if (!open || typeof document === 'undefined') return undefined;
 
@@ -140,8 +92,6 @@ export const ReadingSettings = ({ open, onClose }) => {
         setConfirmingClear(false);
         return;
       }
-      // Turning it off clears local progress, so it is confirmed first — inline, never in
-      // a browser dialog, which would be a popup.
       setConfirmingClear(true);
     },
     [setSetting],
@@ -167,10 +117,6 @@ export const ReadingSettings = ({ open, onClose }) => {
       ref={panelRef}
       role="group"
       aria-label={COPY.SETTINGS.TITLE}
-      // A press on the panel's own padding would otherwise drop focus on the body, and
-      // Escape — which is bound to this container — would stop closing the panel the reader
-      // is still looking at. `-1` keeps it out of the tab order and out of `focusableWithin`,
-      // so the initial focus is still the close control.
       tabIndex={-1}
     >
       <div className="ogp-reading-settings__head">
@@ -180,7 +126,6 @@ export const ReadingSettings = ({ open, onClose }) => {
         </button>
       </div>
 
-      {/* Text size — 5 steps, honoured instantly, on top of any OS or browser zoom. */}
       <fieldset className="ogp-reading-settings__row">
         <legend>{COPY.SETTINGS.TEXT_SIZE}</legend>
         <div className="ogp-reading-settings__steps">
@@ -212,8 +157,6 @@ export const ReadingSettings = ({ open, onClose }) => {
         </div>
       </fieldset>
 
-      {/* Theme — one choice for the whole experience: the room, its chrome and every
-          pathway flow move with the page, so nothing stays dark behind a light page. */}
       <fieldset className="ogp-reading-settings__row">
         <legend>{COPY.SETTINGS.THEME}</legend>
         {THEME_OPTIONS.map((option) => (
@@ -230,7 +173,6 @@ export const ReadingSettings = ({ open, onClose }) => {
         ))}
       </fieldset>
 
-      {/* Audio — default Off, always. The volume slider exists only while sound is on. */}
       <fieldset className="ogp-reading-settings__row">
         <legend>{COPY.SETTINGS.AUDIO}</legend>
         {AUDIO_OPTIONS.map((option) => (
@@ -260,7 +202,6 @@ export const ReadingSettings = ({ open, onClose }) => {
         )}
       </fieldset>
 
-      {/* Experience depth — visible only when the age layer is on (§3.9). */}
       {FLAGS.ageLayerEnabled && (
         <div className="ogp-reading-settings__row">
           <label className="ogp-reading-settings__choice" htmlFor="ogp-experience-depth">
@@ -277,7 +218,6 @@ export const ReadingSettings = ({ open, onClose }) => {
         </div>
       )}
 
-      {/* Remember my place — on by device, and turning it off is confirmed inline. */}
       <div className="ogp-reading-settings__row">
         <label className="ogp-reading-settings__choice">
           <input
@@ -301,7 +241,6 @@ export const ReadingSettings = ({ open, onClose }) => {
         )}
       </div>
 
-      {/* The one permitted progress affordance, off by default. Never a percentage. */}
       <div className="ogp-reading-settings__row">
         <label className="ogp-reading-settings__choice">
           <input
@@ -313,7 +252,6 @@ export const ReadingSettings = ({ open, onClose }) => {
         </label>
       </div>
 
-      {/* Language — reserved for the Multilingual Resonance Layer, a later phase. */}
       <div className="ogp-reading-settings__row">
         <label className="ogp-reading-settings__choice" htmlFor="ogp-language">
           <span>{COPY.SETTINGS.LANGUAGE}</span>

@@ -1,33 +1,13 @@
-/**
- * S14 — Choose Your Path (master §6.2, §6.3, §8.10.3).
- *
- * Five voluntary continuation pathways. **No pathway is default, promoted, or ranked.**
- * They are serif titles with one quiet line of sub-copy each, generous vertical rhythm, all
- * at identical weight — no cards, no shadows, no prices, no "recommended" badge, no urgency,
- * no countdown, no social proof. Leaving is not among them and is not argued with: the
- * reader's place is kept on the device, so closing the tab costs nothing.
- *
- * S14 is a full state of the continuous application, not a modal or an overlay: selecting a
- * pathway opens its flow *in place*, and the flow's back control returns to the list. No
- * hard page reload happens at any point.
- *
- * `PathwaySelected` fires once per selection, carrying only the stable internal slug — the
- * one and only event payload key the contract permits for it. The family pathway's slug is
- * `become_family`; its visible label is the locked phrase, and the interface never says
- * "member" or "membership" anywhere on this screen.
- *
- * Fallback (§6.2): if the pathway list could not be built the two zero-dependency pathways
- * still render, because `pathwaysData` is static configuration and cannot fail — the reader
- * is never trapped on this screen.
- */
-
 import { useCallback, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { COPY } from '@/config/copy';
+import { FLAGS } from '@/config/env';
 import { PATHWAYS } from '@/config/pathwaysData';
 import { useReading } from '@/context/ReadingProvider';
 import { EVENTS } from '@/experience/states';
 import { useExperience } from '@/experience/ExperienceProvider';
+import { PATHS } from '@/routes';
 import { emit as emitEvent } from '@/services/events';
 
 import { ContinueReading } from '@/components/dom/pathways/ContinueReading';
@@ -36,9 +16,6 @@ import { FamilyFlow } from '@/components/dom/pathways/FamilyFlow';
 import { HardcoverFlow } from '@/components/dom/pathways/HardcoverFlow';
 import { ShareFlow } from '@/components/dom/pathways/ShareFlow';
 
-/**
- * @param {{ slug: string, onBack: () => void }} props
- */
 const PathwayFlow = ({ slug, onBack }) => {
   switch (slug) {
     case 'continue_founders_edition':
@@ -68,20 +45,6 @@ export const ChoosePath = () => {
 
   const onBack = useCallback(() => setSelected(null), []);
 
-  /**
-   * Read the Opening Arc again, from the beginning.
-   *
-   * Deliberately **not** another pathway. §6.2 forbids ranking or promoting any of them;
-   * adding one would change the listed set. This is a quiet control beneath them, at chrome
-   * weight — the way back into the work, not a competing destination.
-   *
-   * Both records are cleared, because they are separate by design (§3.9): the machine's
-   * checkpoint, so the opening plays rather than the arc resuming at its end, and the reading
-   * position, so the manuscript starts at the first unit rather than the last one read. The
-   * reader's marks survive both — those are their own annotations, not a position, and
-   * discarding what someone wrote down because they chose to read again would be a strange
-   * way to reward it.
-   */
   const readAgain = useCallback(() => {
     restartReading();
     restartExperience();
@@ -112,14 +75,27 @@ export const ChoosePath = () => {
               ))}
             </ul>
 
-            {/* Beneath the list, at chrome weight, with a rule between: a way back into the
-                reading rather than another thing to choose between. */}
             <div className="ogp-choose-path__again">
               <button type="button" className="ogp-affordance" onClick={readAgain}>
                 {COPY.PATHWAYS.READ_AGAIN}
               </button>
               <p className="ogp-choose-path__again-note">{COPY.PATHWAYS.READ_AGAIN_NOTE}</p>
             </div>
+
+            {/* The questionnaire is not a pathway. `PathwaySelected` carries a locked enum of
+                seven slugs (§6.3), asserted in the backend event catalog, and none of them is
+                this — so it is offered the way "read again" is: below the seven, weighted as
+                the aside it is, and emitting nothing. Beta builds only. */}
+            {FLAGS.betaMode && (
+              <div className="ogp-choose-path__again">
+                <Link className="ogp-affordance" to={PATHS.TEST_QUESTIONNAIRE}>
+                  {COPY.PATHWAYS.QUESTIONNAIRE}
+                </Link>
+                <p className="ogp-choose-path__again-note">
+                  {COPY.PATHWAYS.QUESTIONNAIRE_NOTE}
+                </p>
+              </div>
+            )}
           </>
         )}
       </div>

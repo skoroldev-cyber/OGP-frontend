@@ -1,21 +1,3 @@
-/**
- * Write to one address or to a cohort's worth of them.
- *
- * The screen the founder uses most, so it is built around one promise: nothing is sent until
- * what will happen is visible. The list is read as it is typed, de-duplicated and validated
- * against the same pattern the server applies, and every address is shown with what the panel
- * expects to do with it before the button is reachable. After the send, the per-address
- * outcome replaces the guess with the fact — sent, skipped or failed, each with its reason.
- *
- * Partial failure is the normal case (Backend `admin/invitations.js`): a relay that refuses
- * one mailbox has not invalidated the other 499. So a refusal is a row in a table here, not
- * an error that throws the panel away.
- *
- * No dialog, no overlay, no confirmation sheet. §14.4.1 bans popups and forced overlays
- * platform-wide, and the preview is a better confirmation than a modal asking "are you sure"
- * about a number the operator cannot see.
- */
-
 import { useId, useMemo, useState } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -26,11 +8,6 @@ import { Notice } from '@/admin/components/Notice';
 import { Panel } from '@/admin/components/Panel';
 import { StatusTag } from '@/admin/components/StatusTag';
 
-/**
- * @param {{ cohorts: object[], templates: object[], onSent: () => void }} props Reference
- *        data for the pickers, and what to do once addresses have been written to.
- * @returns {import('react').ReactElement} The compose panel.
- */
 export function InvitationCompose({ cohorts, templates, onSent }) {
   const ids = useId();
 
@@ -52,10 +29,6 @@ export function InvitationCompose({ cohorts, templates, onSent }) {
     [addresses],
   );
 
-  /**
-   * @param {import('react').FormEvent} event The submission.
-   * @returns {Promise<void>} Resolves when the outcome is on screen.
-   */
   const onSubmit = async (event) => {
     event.preventDefault();
     if (sending || counts.valid === 0) return;
@@ -74,8 +47,6 @@ export function InvitationCompose({ cohorts, templates, onSent }) {
       setRaw('');
       onSent();
     } catch (error) {
-      // A prohibited term in the added line refuses the whole request rather than half the
-      // batch. The server names the term; it is shown exactly as sent.
       setFailure(error);
     } finally {
       setSending(false);

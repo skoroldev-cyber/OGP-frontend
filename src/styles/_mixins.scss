@@ -1,16 +1,6 @@
-// =============================================================================
-// OGP MIXINS
-//
-// Each mixin encodes a rule that would otherwise be repeated — and eventually
-// misremembered — in a dozen component partials.
-// =============================================================================
-
 @use 'sass:color';
 @use 'ogp-tokens' as *;
 
-/// Hidden from sight, present for assistive technology.
-/// Used for the locked hidden labels: "Begin the Journey into the Immersive Reading
-/// Room." and "Enter the Immersive Reading Room." (§2.7, §3.2).
 @mixin visually-hidden {
   position: absolute !important;
   width: 1px !important;
@@ -23,9 +13,6 @@
   border: 0 !important;
 }
 
-/// The focus ring: 2 px `$ogp-focus`, 2 px offset, on EVERY interactive element,
-/// NEVER suppressed (§8.7). `:focus-visible` keeps it off mouse clicks, but the
-/// fallback below guarantees it exists even where `:focus-visible` is unsupported.
 @mixin focus-ring {
   &:focus {
     outline: 2px solid $ogp-focus;
@@ -42,9 +29,6 @@
   }
 }
 
-/// The manuscript column. Measure 34em, generous leading, no first-line indents.
-/// Body size is expressed through `--ogp-text-scale` so the reader's five-step size
-/// control moves the whole column coherently rather than one element at a time.
 @mixin reading-measure {
   max-width: var(--ogp-read-measure);
   margin-inline: auto;
@@ -55,9 +39,6 @@
   text-wrap: pretty;
 }
 
-/// The 7x9 "Immersive Reading Layout" panel. Above the tablet breakpoint the column
-/// emulates the printed page proportion; below it, the column goes full-bleed with the
-/// SAME measure rules — mobile is a primary experience, not a reduced afterthought.
 @mixin reading-panel {
   width: min(100%, calc(100dvh * #{$ogp-page-ratio}));
   margin-inline: auto;
@@ -69,9 +50,6 @@
   }
 }
 
-/// Any text over live canvas imagery sits on a scrim of at least 40% `void-deep`,
-/// sized to the text block and verified at the brightest frame of the sequence
-/// beneath it (§8.11). This is a contrast requirement, not a decorative effect.
 @mixin scrim($opacity: $ogp-scrim-opacity) {
   position: relative;
   isolation: isolate;
@@ -91,9 +69,6 @@
   }
 }
 
-/// A threshold invitation: "Enter", the pathway titles. Never standard web-button
-/// styling — no boxes, borders or fills. The hover/focus response is a subtle glow
-/// (`gold-core` text-shadow at <= 8 px blur) or a gentle underline (§8.7).
 @mixin threshold-action {
   display: inline-block;
   padding: 0.5rem 0.25rem;
@@ -116,7 +91,6 @@
     text-shadow: 0 0 8px #{color.change($ogp-gold-core, $alpha: 0.55)};
   }
 
-  // No hover on touch: the light response becomes a gentle idle glow instead (§2.11).
   @media (hover: none) {
     &:hover {
       color: var(--ogp-gold-text);
@@ -125,8 +99,6 @@
   }
 }
 
-/// A quiet, low-emphasis text control: the three mandatory affordances and the reading
-/// chrome. Small and unobtrusive, but AA-compliant, and full contrast on focus (§8.7).
 @mixin quiet-control {
   display: inline-flex;
   align-items: center;
@@ -153,8 +125,6 @@
     opacity: 1;
   }
 }
-
-// ---- Breakpoints -------------------------------------------------------------
 
 @mixin respond-to($breakpoint) {
   @if $breakpoint == mobile {
@@ -184,18 +154,12 @@
   }
 }
 
-/// Content that applies when the SYSTEM asks for reduced motion. Safe at any nesting
-/// level, including the stylesheet root, because it emits only a media query.
-/// Reduced motion is a complete, first-class alternative, not a degraded one (§8.3.4).
 @mixin reduced-motion {
   @media (prefers-reduced-motion: reduce) {
     @content;
   }
 }
 
-/// Content that applies when the reader used the in-experience motion toggle, which is
-/// mandatory and independent of the system setting (§2.10). Must be used INSIDE a
-/// selector — it composes with the parent via `&`.
 @mixin motion-reduced-override {
   :root[data-motion='reduced'] &,
   :root[data-motion='off'] & {
@@ -203,8 +167,6 @@
   }
 }
 
-/// Content that applies only when neither the system nor the reader asked for less motion.
-/// Must be used inside a selector.
 @mixin full-motion {
   @media (prefers-reduced-motion: no-preference) {
     :root:not([data-motion='reduced']):not([data-motion='off']) & {

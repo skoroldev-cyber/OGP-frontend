@@ -1,12 +1,3 @@
-/**
- * Cohorts, and how far each one has moved. Read-only.
- *
- * The progress board reproduces exactly what §10.7.2 asks to be visible: "how many expressed
- * interest / were approved / received the reading link / completed the questionnaire / need
- * follow-up". Counts only — the summary route carries no participant list and no reading
- * trail, and there is no route in this panel that would produce one (§10.2).
- */
-
 import { useCallback, useId, useState } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -19,19 +10,12 @@ import { ResourceState } from '@/admin/components/ResourceState';
 import { StatusTag } from '@/admin/components/StatusTag';
 import { useAdminResource } from '@/admin/useAdminResource';
 
-/**
- * @param {string} status A cohort status.
- * @returns {'neutral'|'positive'|'quiet'} How strongly to tint the tag.
- */
 const cohortTone = (status) => {
   if (status === 'active') return 'positive';
   if (status === 'closed') return 'quiet';
   return 'neutral';
 };
 
-/**
- * @returns {import('react').ReactElement} The cohorts screen.
- */
 export function CohortsScreen() {
   const ids = useId();
 

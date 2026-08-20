@@ -1,27 +1,3 @@
-/**
- * The two Founding Reader messages, and nothing else.
- *
- * The set is closed on purpose: §10.6.4 rules out email campaign tooling, so this screen
- * rewrites what the two existing messages say and cannot create a third. There is no
- * schedule, no sequence and no recipient list here — that lives, deliberately singular, on
- * the invitations screen.
- *
- * Two refusals are expected and are treated as ordinary results rather than as errors:
- *
- *  - the copy lint (§10.6.2) refuses a prohibited term, with no override, because the message
- *    reaches someone who did not ask for marketing language;
- *  - the renderer refuses a placeholder it does not know, and refuses a message that has lost
- *    `{{invitationUrl}}` — a message promising a private reading link and carrying none.
- *
- * Both come back as a 422 with the server's own sentence, which is shown verbatim beneath a
- * line explaining why the rule exists. The editor keeps the copy on screen throughout: a
- * refusal that discarded the draft would be a worse offence than the term that caused it.
- *
- * The preview renders inside a fully sandboxed iframe. The copy is founder-authored, but it
- * is still stored data being rendered as markup, and `sandbox=""` means no script in it can
- * run even if one day it contains something that never should have been stored.
- */
-
 import { useCallback, useId, useState } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -32,23 +8,8 @@ import { Panel } from '@/admin/components/Panel';
 import { ResourceState } from '@/admin/components/ResourceState';
 import { useAdminResource } from '@/admin/useAdminResource';
 
-/**
- * The placeholder as it is written in the copy.
- *
- * Built rather than written literally so the braces are never mistaken for a JSX expression,
- * and so the four names have exactly one spelling in this file.
- *
- * @param {string} name The placeholder name.
- * @returns {string} The token.
- */
 const token = (name) => `{{${name}}}`;
 
-/**
- * Which explanation belongs to a refusal.
- *
- * @param {{ code?: string }|null} failure The API failure.
- * @returns {string|null} The line to show above the server's own message.
- */
 const explanationFor = (failure) => {
   if (failure?.code === 'PROHIBITED_TERM') return COPY.ADMIN.TEMPLATES.REJECTED_PROHIBITED;
   if (failure?.code === 'UNKNOWN_PLACEHOLDER') return COPY.ADMIN.TEMPLATES.REJECTED_PLACEHOLDER;
@@ -56,9 +17,6 @@ const explanationFor = (failure) => {
   return null;
 };
 
-/**
- * @returns {import('react').ReactElement} The templates screen.
- */
 export function TemplatesScreen() {
   const ids = useId();
 
@@ -73,8 +31,6 @@ export function TemplatesScreen() {
   const [failure, setFailure] = useState(null);
   const [saved, setSaved] = useState(false);
 
-  // Derived rather than copied into state on load: an effect that seeded a draft from the
-  // fetched copy would fight every re-read, and would silently drop an edit in progress.
   const key = activeKey ?? templates[0]?.key ?? '';
   const stored = templates.find((template) => template.key === key) ?? null;
   const edit = edits[key] ?? {};
@@ -84,31 +40,17 @@ export function TemplatesScreen() {
     bodyHtml: edit.bodyHtml ?? stored?.bodyHtml ?? '',
   };
 
-  /**
-   * @param {string} field The field being edited.
-   * @param {string} value The new value.
-   * @returns {void}
-   */
   const setField = (field, value) => {
     setSaved(false);
     setEdits((previous) => ({ ...previous, [key]: { ...previous[key], [field]: value } }));
   };
 
-  /**
-   * The body as the API takes it. An emptied HTML body is omitted, which the service stores
-   * as null — the message then goes out as plain text only.
-   *
-   * @returns {{ subject: string, bodyText: string, bodyHtml?: string }} The payload.
-   */
   const payload = () => ({
     subject: draft.subject,
     bodyText: draft.bodyText,
     ...(draft.bodyHtml.trim() === '' ? {} : { bodyHtml: draft.bodyHtml }),
   });
 
-  /**
-   * @returns {Promise<void>} Resolves when the preview or its refusal is on screen.
-   */
   const onPreview = async () => {
     setBusy('preview');
     setFailure(null);
@@ -123,10 +65,6 @@ export function TemplatesScreen() {
     }
   };
 
-  /**
-   * @param {import('react').FormEvent} event The submission.
-   * @returns {Promise<void>} Resolves when the copy is stored or refused.
-   */
   const onSave = async (event) => {
     event.preventDefault();
     setBusy('save');

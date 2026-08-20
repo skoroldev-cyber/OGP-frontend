@@ -1,31 +1,6 @@
-// =============================================================================
-// OPERATIONS PANEL — shell, controls, tables
-//
-// §8.8: "Support surfaces outside the experience (privacy policy, legal, admin
-// dashboard) may invert the token family into a light theme." That is exactly what
-// this file does — and *only* that. Every value below is derived from a canonical
-// token in `_ogp-tokens.scss` by a lightness scale, so the panel is the same palette
-// read from the other end rather than a second, unrelated set of colours. Nothing
-// here introduces a hue the experience does not already own.
-//
-// §10.5: "Views use plain, information-dense internal styling — the cinematic design
-// mandate (§8) applies to the reader experience, not to this tool." So: no threshold
-// styling, no glow, no serif display type, no scrim, no scene. Inter throughout. The
-// manuscript face appears in exactly one place in this panel — a marked passage in
-// `_admin-feedback.scss` — because there it is quoting the work itself.
-//
-// Accessibility is not relaxed here (§8.10.4): real labels, 44 px targets, a visible
-// focus ring on every control, and a word beside every status colour.
-// =============================================================================
-
 @use 'sass:color';
 @use '../ogp-tokens' as *;
 @use '../mixins' as *;
-
-// ---- The inverted family ------------------------------------------------------
-// Warm paper rather than white: `#ffffff` is a prohibited background (§8.2.2), and a
-// tool that is read for an hour at a time should not be the brightest thing on the
-// desk.
 
 $admin-page: color.scale($ogp-read-text, $lightness: 32%);
 $admin-surface: color.scale($ogp-read-text, $lightness: 62%);
@@ -33,16 +8,10 @@ $admin-raised: $ogp-read-text;
 $admin-line: color.scale($ogp-read-rule, $lightness: 74%);
 $admin-line-strong: color.scale($ogp-read-rule, $lightness: 52%);
 
-// Ink is the reading field, unchanged: the darkest token in the family, now carrying
-// the text instead of the background.
 $admin-ink: $ogp-read-field;
-// 22% rather than 44%: the higher scale washed metadata (codes, hints, pager) to a
-// grey that failed contrast on the paper surface.
+
 $admin-ink-dim: color.scale($ogp-read-field, $lightness: 22%);
 
-// The gold family's dark end. `$ogp-gold-text` and `$ogp-focus` are tuned for light on
-// void and fall below AA on paper, so the accent and the focus ring take `gold-deep`
-// and `gold-muted` — same family, correct end for this background.
 $admin-accent: $ogp-gold-deep;
 $admin-accent-soft: $ogp-gold-muted;
 $admin-focus: $ogp-gold-deep;
@@ -56,9 +25,6 @@ $admin-caution-field: color.scale($ogp-gold-primary, $lightness: 64%);
 $admin-radius: 4px;
 $admin-gap: 1rem;
 
-/// The panel's focus ring. The canonical ring is 2 px `$ogp-focus` (§8.7) — a pale
-/// cream that is invisible on paper. Same rule, same geometry, the readable end of the
-/// same family. Never suppressed.
 @mixin admin-focus-ring {
   &:focus {
     outline: 2px solid $admin-focus;
@@ -75,9 +41,6 @@ $admin-gap: 1rem;
   }
 }
 
-// The document behind the panel. `_base.scss` paints the body `void-deep` so the
-// reader never sees a white flash; on this surface that would show as a dark band
-// under a short page and behind an overscroll bounce.
 :root[data-surface='admin'] body {
   background-color: $admin-page;
 }
@@ -90,7 +53,6 @@ $admin-gap: 1rem;
   font-size: var(--ogp-ui-size-control);
   line-height: 1.5;
 
-  // Beats the global ring from `_base.scss` in both specificity and source order.
   a,
   button,
   input,
@@ -105,16 +67,12 @@ $admin-gap: 1rem;
   }
 }
 
-// ---- Layout -------------------------------------------------------------------
-
 .ogp-admin-layout {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
 }
 
-/// Present for everyone, visible on focus. The panel has one skip target because it
-/// has one repeated block of navigation.
 .ogp-admin-skip {
   @include visually-hidden;
 
@@ -229,8 +187,6 @@ $admin-gap: 1rem;
     background-color: $admin-raised;
   }
 
-  // The current section is named to assistive technology by `aria-current`; the tint
-  // and the rule are the visual echo of that, never the only signal.
   &[aria-current='page'] {
     background-color: $admin-raised;
     box-shadow: inset 3px 0 0 0 $admin-accent;
@@ -247,8 +203,6 @@ $admin-gap: 1rem;
     padding: 1rem;
   }
 }
-
-// ---- Screen and panel ---------------------------------------------------------
 
 .ogp-admin-screen-head {
   display: flex;
@@ -311,8 +265,6 @@ $admin-gap: 1rem;
   color: $admin-ink-dim;
 }
 
-// ---- Forms --------------------------------------------------------------------
-
 .ogp-admin-form {
   display: flex;
   flex-direction: column;
@@ -321,12 +273,7 @@ $admin-gap: 1rem;
 
 .ogp-admin-field {
   display: flex;
-  // `flex: 0 0 auto`, NOT `1 1 14rem`.
-  //
-  // `.ogp-admin-form` is a COLUMN flex container, and in a column `flex-basis` sizes the main
-  // axis — the height. A 14rem basis therefore made every field 224px tall, which is why the
-  // sign-in form had a screen and a half of empty space between its three inputs. The basis was
-  // written for the horizontal case and only ever makes sense there.
+
   flex: 0 0 auto;
   flex-direction: column;
   gap: 0.35rem;
@@ -338,8 +285,6 @@ $admin-gap: 1rem;
   flex-wrap: wrap;
   gap: $admin-gap;
 
-  // Inside a ROW, the basis means what it was meant to mean: a comfortable column width that
-  // wraps when there is not room for another.
   > .ogp-admin-field {
     flex: 1 1 14rem;
   }
@@ -410,8 +355,6 @@ $admin-gap: 1rem;
   margin-bottom: $admin-gap;
 }
 
-// ---- Buttons ------------------------------------------------------------------
-
 .ogp-admin-button {
   display: inline-flex;
   align-items: center;
@@ -471,9 +414,6 @@ $admin-gap: 1rem;
   }
 }
 
-// ---- Tables -------------------------------------------------------------------
-
-/// Wide tables scroll inside their own box rather than pushing the page sideways.
 .ogp-admin-table-scroll {
   overflow-x: auto;
   border: 1px solid $admin-line;
@@ -526,9 +466,6 @@ $admin-gap: 1rem;
   font-variant-numeric: tabular-nums;
 }
 
-// ---- Status tags --------------------------------------------------------------
-// The tint is decoration. The word inside is the information (§8.10.4).
-
 .ogp-admin-tag {
   display: inline-block;
   padding: 0.15rem 0.5rem;
@@ -566,8 +503,6 @@ $admin-gap: 1rem;
     color: $admin-error;
   }
 }
-
-// ---- Notices, states, pager ---------------------------------------------------
 
 .ogp-admin-notice {
   margin-bottom: $admin-gap;
@@ -623,8 +558,6 @@ $admin-gap: 1rem;
   color: $admin-ink-dim;
   font-size: var(--ogp-ui-size-meta);
 }
-
-// ---- Description lists --------------------------------------------------------
 
 .ogp-admin-meta,
 .ogp-admin-counts {

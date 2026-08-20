@@ -1,34 +1,4 @@
 #!/usr/bin/env node
-/**
- * Derive the reading-room logo mark from the commissioned source artwork.
- *
- * `public/logo/main-logo.png` is the delivered master: 1272x1236 and 2.1 MB. The mark is worn
- * in the reading-room chrome at about 34 CSS pixels, so shipping the master would spend two
- * megabytes to paint a thumbnail — on the one screen §8.1 asks to be quietest, and against the
- * §7.7 budget the manuscript itself has to fit inside. §8.9 permits a commissioned image to be
- * carried into the pipeline; it does not permit carrying it at sixty times the size it is shown.
- *
- * So the master stays the master and this derives the worn sizes from it. Nothing here makes a
- * design decision: it trims the transparent margin the master ships with, so the mark can be
- * optically aligned against the wordmark rather than against its own padding, and it box-filters
- * down to 1x and 2x. Re-run it when the master is redrawn.
- *
- * `sharp` is deliberately not used. It is the right tool and `build-textures.mjs` reaches for it,
- * but it is absent from this project's dependency tree and borrowed from a sibling checkout when
- * that script runs. A one-off resize of an 8-bit RGBA PNG is small enough to do against `zlib`
- * directly, and a design-time script that always runs is worth more than one that needs a
- * neighbouring `node_modules` to exist.
- *
- * Alpha is premultiplied before averaging and unpremultiplied after. Averaging straight RGBA
- * blends the colour of fully transparent pixels into the edge, which on gold over a dark field
- * shows up as a grey fringe around every strand.
- *
- * Usage:
- *   node scripts/build-logo-mark.mjs [--src=public/logo/main-logo.png] [--sizes=64,128]
- *
- * @module scripts/build-logo-mark
- */
-
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
@@ -58,19 +28,6 @@ const SIZES = String(args.sizes ?? '64,128')
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
-/* -------------------------------------------------------------------------- */
-/* Decode                                                                      */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Read an 8-bit RGBA, non-interlaced PNG into a flat pixel buffer.
- *
- * Only the one shape the master is authored in is supported. Anything else throws rather than
- * guessing, because a silently misread logo is harder to notice than a failed build.
- *
- * @param {Buffer} file
- * @returns {{ width: number, height: number, data: Buffer }}
- */
 function decodePng(file) {
   if (!file.subarray(0, 8).equals(PNG_SIGNATURE)) throw new Error('not a PNG');
 
@@ -103,8 +60,6 @@ function decodePng(file) {
   const stride = width * 4;
   const data = Buffer.alloc(stride * height);
 
-  // Undo the per-scanline filters. Each byte is predicted from its left (a), its neighbour on
-  // the row above (b) and that neighbour's left (c); the filter byte says which prediction.
   for (let y = 0; y < height; y += 1) {
     const filter = raw[y * (stride + 1)];
     const line = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1));
@@ -142,7 +97,6 @@ function decodePng(file) {
   return { width, height, data };
 }
 
-/** The PNG Paeth predictor: whichever of a, b or c is nearest to a + b - c. */
 function paeth(a, b, c) {
   const p = a + b - c;
   const pa = Math.abs(p - a);
@@ -152,19 +106,6 @@ function paeth(a, b, c) {
   return pb <= pc ? b : c;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Trim and resample                                                           */
-/* -------------------------------------------------------------------------- */
-
-/**
- * The bounding box of everything meaningfully opaque, squared off around the artwork's centre.
- *
- * Squared rather than tight: the mark is a disc, and a tight box on a hand-drawn disc is a few
- * pixels off round, which would land as a mark that sits crooked next to the wordmark.
- *
- * @param {{ width: number, height: number, data: Buffer }} image
- * @param {number} threshold Alpha at or below which a pixel counts as empty.
- */
 function contentBox(image, threshold = 8) {
   const { width, height, data } = image;
   let top = height;
@@ -195,14 +136,6 @@ function contentBox(image, threshold = 8) {
   };
 }
 
-/**
- * Box-filter a square region down to `target` pixels a side, averaging in premultiplied alpha.
- *
- * @param {{ width: number, data: Buffer }} image
- * @param {{ x: number, y: number, size: number }} box
- * @param {number} target
- * @returns {{ width: number, height: number, data: Buffer }}
- */
 function resample(image, box, target) {
   const out = Buffer.alloc(target * target * 4);
   const step = box.size / target;
@@ -234,8 +167,6 @@ function resample(image, box, target) {
       }
 
       const o = (ty * target + tx) * 4;
-      // Unpremultiply against the accumulated coverage, not the sample count: a pixel that is
-      // one-tenth covered keeps its full colour at one-tenth alpha rather than fading to black.
       out[o] = a > 0 ? Math.round(r / a) : 0;
       out[o + 1] = a > 0 ? Math.round(g / a) : 0;
       out[o + 2] = a > 0 ? Math.round(b / a) : 0;
@@ -246,17 +177,6 @@ function resample(image, box, target) {
   return { width: target, height: target, data: out };
 }
 
-/* -------------------------------------------------------------------------- */
-/* Encode                                                                      */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Write an 8-bit RGBA PNG, choosing a filter per scanline by the minimum-sum-of-absolute-
- * differences heuristic the specification recommends.
- *
- * @param {{ width: number, height: number, data: Buffer }} image
- * @returns {Buffer}
- */
 function encodePng(image) {
   const { width, height, data } = image;
   const stride = width * 4;
@@ -296,7 +216,6 @@ function encodePng(image) {
             value = line[x] - paeth(a, b, c);
         }
         candidate[x] = value & 0xff;
-        // Signed magnitude: a byte of 0xfe is a delta of -2, which compresses like a 2.
         score += candidate[x] < 128 ? candidate[x] : 256 - candidate[x];
       }
       if (score < bestScore) {
@@ -313,9 +232,9 @@ function encodePng(image) {
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(width, 0);
   ihdr.writeUInt32BE(height, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 6; // colour type: RGBA
-  ihdr[12] = 0; // no interlace
+  ihdr[8] = 8;
+  ihdr[9] = 6;
+  ihdr[12] = 0;
 
   return Buffer.concat([
     PNG_SIGNATURE,
@@ -325,7 +244,6 @@ function encodePng(image) {
   ]);
 }
 
-/** Length-prefixed, CRC-suffixed PNG chunk. */
 function chunk(type, body) {
   const head = Buffer.alloc(8);
   head.writeUInt32BE(body.length, 0);
@@ -350,8 +268,6 @@ function crc32(buffer) {
   for (let i = 0; i < buffer.length; i += 1) c = CRC_TABLE[(c ^ buffer[i]) & 0xff] ^ (c >>> 8);
   return (c ^ 0xffffffff) >>> 0;
 }
-
-/* -------------------------------------------------------------------------- */
 
 if (!fs.existsSync(SRC)) {
   console.error(`\n  Source artwork not found: ${path.relative(FRONTEND, SRC)}\n`);

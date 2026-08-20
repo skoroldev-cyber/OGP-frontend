@@ -1,14 +1,3 @@
-// =============================================================================
-// ReadingSettings
-//
-// A quiet disclosure in the corner of the room. Never over the manuscript text: on desktop
-// it is a panel inset from the edge; on mobile it takes the width it needs and scrolls.
-//
-// Visible labels on every control — never a placeholder standing in for a label — and 44 px
-// touch targets throughout (§8.10.4). No streak, goal, percentage or celebration exists in
-// this surface, so none can be styled here.
-// =============================================================================
-
 @use 'sass:color';
 @use 'ogp-tokens' as *;
 @use 'mixins' as *;
@@ -28,8 +17,6 @@
   font-size: var(--ogp-ui-size-control);
   color: var(--ogp-read-text);
 
-  // A hairline, not a control. Firefox has no arbitrary width, so `thin` is as close as it
-  // reaches; the reader scrolls with wheel, drag or keyboard either way.
   scrollbar-width: thin;
   scrollbar-color: var(--ogp-read-rule) transparent;
 
@@ -84,7 +71,7 @@
       width: 100%;
       padding: 0;
       margin-bottom: 0.5rem;
-      // read-text-dim on read-field is about 9:1 (§8.11).
+
       color: var(--ogp-read-text-dim);
       font-size: var(--ogp-ui-size-meta);
       letter-spacing: $ui-caps-tracking;
@@ -101,7 +88,7 @@
 
     input[type='radio'],
     input[type='checkbox'] {
-      // Non-text UI reaches 3:1 against the field it sits on (§8.11).
+
       accent-color: var(--ogp-gold-primary);
       width: 1.125rem;
       height: 1.125rem;
@@ -130,9 +117,6 @@
     width: 100%;
   }
 
-  // A purely decorative read-out of where the five steps stand. Not a counter, not a
-  // score: it carries no number and is hidden from assistive technology, which is told
-  // the same thing by the disabled state of the two controls.
   &__marks {
     display: inline-flex;
     gap: 0.25rem;

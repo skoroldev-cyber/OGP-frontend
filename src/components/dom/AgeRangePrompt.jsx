@@ -1,26 +1,3 @@
-/**
- * S9 — Phase 1B age calibration (master §3.3, §4, §8.10.4).
- *
- * Rendered ONLY when `FLAGS.ageLayerEnabled`. It ships OFF: only `full_manuscript` has
- * certified text today, so by default S9 settles straight into S10 and this screen never
- * exists. The flag check is repeated here rather than trusted to the caller, because a
- * screen that routes readers to uncertified renderings must not be one import away from
- * appearing.
- *
- * The three locked strings are rendered verbatim and in full:
- *   `COPY.AGE.ENTRY_MESSAGE` · `COPY.AGE.PROMPT_LONG` · `COPY.AGE.PRIVACY_STATEMENT`
- * The privacy statement is displayed *with* the prompt — never behind a link, never in a
- * tooltip, never smaller than the options it qualifies.
- *
- * Six ranges as quiet serif choices, plus a no-answer path. Every route ends in a content
- * layer: `contentLayerForAgeBand` maps the six bands verbatim, and no answer maps to
- * `full_manuscript`.
- *
- * **NO gender question. NO birthdate field. Session state only** — the band is set on the
- * machine context, never sent in an event (the event whitelist has no slot for it) and
- * never joined to a profile.
- */
-
 import { useCallback } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -39,7 +16,6 @@ export const AgeRangePrompt = () => {
   );
 
   const decline = useCallback(() => {
-    // The no-answer path. `contentLayerForAgeBand(null)` resolves to `full_manuscript`.
     setAgeBand(null);
     advance({ inputMethod: 'pointer' });
   }, [setAgeBand, advance]);

@@ -1,11 +1,3 @@
-// =============================================================================
-// OPERATIONS PANEL — sign-in
-//
-// One card, three fields, and the site tagline beneath it. §8.8 places the tagline on
-// support surfaces and keeps it out of the opening experience; this is the only screen
-// in the panel that carries it.
-// =============================================================================
-
 @use '../ogp-tokens' as *;
 @use '../mixins' as *;
 @use 'admin-shell' as shell;

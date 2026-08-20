@@ -1,12 +1,3 @@
-// =============================================================================
-// OPERATIONS PANEL — audit log
-//
-// The diff opens in place and is shown as the capped JSON text the API sent. Nothing is
-// reformatted or pretty-printed: the log is append-only and read-only for every role
-// including the founder (§10.9), and rewriting how a record looks is the first small
-// step away from that.
-// =============================================================================
-
 @use '../ogp-tokens' as *;
 @use '../mixins' as *;
 @use 'admin-shell' as shell;

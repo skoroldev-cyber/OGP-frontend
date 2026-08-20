@@ -1,27 +1,8 @@
-/**
- * The five-point histogram behind one scaled question.
- *
- * Shown because an average hides the shape it came from: five reviewers splitting 1/1/5/5/5
- * average 3.4, which describes none of them and is the single most misleading number this
- * panel could print. The mean is the headline; this is the finding.
- *
- * The bar is decoration and is hidden from assistive technology. Each row is announced as one
- * sentence instead — "three rated this 5 out of 5" — because a screen reader reading a bare
- * "5" beside a bare "3" has no way to know which is the rating (§8.10.4: never colour or
- * length alone).
- */
-
 import { COPY } from '@/config/copy';
 import { fill } from '@/admin/adminFormat';
 
-/**
- * @param {{ distribution: Array<{ rating: number, count: number }> }} props The histogram.
- * @returns {import('react').ReactElement} The rows.
- */
 export function RatingDistribution({ distribution }) {
   const rows = Array.isArray(distribution) ? distribution : [];
-  // Scaled against the tallest bar rather than the total, so a question answered by four
-  // people out of two hundred still shows a readable shape.
   const peak = rows.reduce((highest, row) => Math.max(highest, row.count), 0);
 
   return (

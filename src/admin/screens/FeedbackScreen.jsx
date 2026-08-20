@@ -1,17 +1,3 @@
-/**
- * The free-form feedback queue.
- *
- * What a reader wrote after finishing the arc, with the passages they marked while reading
- * attached to it (§3.13: the questionnaire follows completion; while reading, a reader may
- * only mark). Nothing here is keyed to a person or to a place in the manuscript: the
- * projection carries no `sessionId` and no reading progress, so a reviewer reads what someone
- * wrote and never where they were.
- *
- * The filters are one form with one Apply. Selects that re-queried on change would fire a
- * request per keystroke on the search field beside them, and a queue that re-orders itself
- * while it is being read is a queue nobody trusts.
- */
-
 import { useCallback, useId, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -28,7 +14,6 @@ import { ResourceState } from '@/admin/components/ResourceState';
 import { StatusTag } from '@/admin/components/StatusTag';
 import { useAdminResource } from '@/admin/useAdminResource';
 
-/** Every filter, cleared. */
 const NO_FILTERS = Object.freeze({
   status: '',
   category: '',
@@ -39,16 +24,6 @@ const NO_FILTERS = Object.freeze({
   to: '',
 });
 
-/**
- * Drop the empty entries so the query carries only what was asked for.
- *
- * The two date controls are `<input type="date">`, which yields `YYYY-MM-DD`; the route takes
- * a full ISO instant. `from` is widened to the start of its day and `to` to the end of its
- * own, so a range typed as one day is that whole day rather than a zero-length instant.
- *
- * @param {typeof NO_FILTERS} filters The applied filters.
- * @returns {object} The query.
- */
 const asQuery = (filters) => {
   const query = {};
   for (const [name, value] of Object.entries(filters)) {
@@ -60,9 +35,6 @@ const asQuery = (filters) => {
   return query;
 };
 
-/**
- * @returns {import('react').ReactElement} The feedback queue screen.
- */
 export function FeedbackScreen() {
   const ids = useId();
 
@@ -85,28 +57,18 @@ export function FeedbackScreen() {
   const loadSummary = useCallback(() => adminApi.feedbackSummary(asQuery(applied)), [applied]);
   const summary = useAdminResource(loadSummary);
 
-  /**
-   * @param {import('react').FormEvent} event The submission.
-   * @returns {void}
-   */
   const onApply = (event) => {
     event.preventDefault();
     setApplied(draft);
     setPage(1);
   };
 
-  /**
-   * @returns {void}
-   */
   const onClear = () => {
     setDraft(NO_FILTERS);
     setApplied(NO_FILTERS);
     setPage(1);
   };
 
-  /**
-   * @returns {Promise<void>} Resolves once the file has been handed over or refused.
-   */
   const onExport = async () => {
     setExporting(true);
     setExportFailure(null);
@@ -114,9 +76,6 @@ export function FeedbackScreen() {
       const blob = await adminApi.exportFeedbackCsv(asQuery(applied));
       downloadFile(blob, COPY.ADMIN.FEEDBACK.EXPORT_FILENAME);
     } catch (failure) {
-      // The export moves contact details off the platform, so it is role-gated more tightly
-      // than reading the queue is (§10.11 — every export is audit-logged). A 403 here is a
-      // legitimate answer, not a fault, and says so.
       setExportFailure(failure);
     } finally {
       setExporting(false);
@@ -127,11 +86,6 @@ export function FeedbackScreen() {
   const total = list.data?.total ?? 0;
   const offset = (page - 1) * FEEDBACK_PAGE_SIZE;
 
-  /**
-   * @param {string} name The filter name.
-   * @param {string} value The value.
-   * @returns {void}
-   */
   const setFilter = (name, value) => setDraft((previous) => ({ ...previous, [name]: value }));
 
   return (

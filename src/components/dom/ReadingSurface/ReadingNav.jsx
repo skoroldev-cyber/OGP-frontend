@@ -1,27 +1,5 @@
-/**
- * Previous and next, on the rails either side of the page.
- *
- * They used to sit in the flow at the end of each unit, which had two costs: a control stood
- * between the reader and the last line, so the page could never end on its own words, and the
- * reader had to travel to the bottom of a unit to go anywhere at all.
- *
- * On the rails they are always reachable and never read. They sit *outside* the page, in the
- * ambient field, so nothing crosses the measure — §8.1's transfer of authority holds: the
- * words, the reader, and the truth, with the machinery at the edge of the room.
- *
- * Restraint still applies (§8.7). These are large and easy to hit, but they are hairline
- * arrows on a translucent ground, not filled buttons: no borders, no fills, no labels, no
- * counters. They recede to almost nothing while reading and come back on intent.
- */
-
 import { COPY } from '@/config/copy';
 
-/**
- * @param {{
- *   onPrevious: (() => void)|null,
- *   onNext: (() => void)|null,
- * }} props
- */
 export const ReadingNav = ({ onPrevious, onNext }) => (
   <>
     <button

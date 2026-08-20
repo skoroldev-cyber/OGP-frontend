@@ -1,24 +1,9 @@
-/**
- * The panel's chrome: a sidebar of sections, who is signed in, and the way out.
- *
- * §10.5 fixes the shape — "each view maps 1:1 to an API route group" — and the tone: "plain,
- * information-dense internal styling — the cinematic design mandate (§8) applies to the
- * reader experience, not to this tool." So there is no threshold styling here, no serif
- * display type, and no scene. Inter throughout; the manuscript face appears only where
- * manuscript text is shown, which is the feedback detail and nowhere else.
- *
- * The sidebar is a real `<nav>` of `NavLink`s, so the current section is announced through
- * `aria-current` rather than through colour alone, and the whole panel is operable from the
- * keyboard in document order behind one skip link.
- */
-
 import { NavLink } from 'react-router-dom';
 
 import { COPY } from '@/config/copy';
 import { ADMIN_SEGMENTS, adminPath } from '@/admin/adminPaths';
 import { useAdminSession } from '@/admin/useAdminSession';
 
-/** The sidebar, in order. Each entry is one screen over one API route group (§10.5). */
 const SECTIONS = [
   { segment: ADMIN_SEGMENTS.INVITATIONS, label: COPY.ADMIN.NAV.INVITATIONS },
   { segment: ADMIN_SEGMENTS.TEMPLATES, label: COPY.ADMIN.NAV.TEMPLATES },
@@ -31,10 +16,6 @@ const SECTIONS = [
 
 const CONTENT_ID = 'ogp-admin-content';
 
-/**
- * @param {{ children: import('react').ReactNode }} props The active screen.
- * @returns {import('react').ReactElement} The layout.
- */
 export function AdminLayout({ children }) {
   const { admin, signOut } = useAdminSession();
 

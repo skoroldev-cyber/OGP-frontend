@@ -1,29 +1,9 @@
-/**
- * AtmosphereMaterial — the thin, luminous, fragile blue rim.
- *
- * This is the FIRST visible Earth signal (§2.6 locked reveal order) and therefore the
- * single most load-bearing shader in the build: "Life exists because this planet holds
- * breath." It is also the one most easily ruined — D-002 "Avoid exaggerated glow", and
- * §8.2.2 prohibits "neon anything".
- *
- * Restraint is enforced structurally rather than by taste:
- *   - The rim is a Fresnel term on a shell barely larger than the planet, so its WIDTH is
- *     geometric, not a glow radius that can be dialled up.
- *   - Scattering is gated by the sun direction, so the rim is bright on the lit limb and
- *     nearly absent on the night side — the way a real limb behaves. A uniform ring of
- *     light in all directions is exactly the "corporate stock-photo glow" that is banned.
- *   - The colour is `atmos-rim` and nothing else. There is no saturation control.
- *
- * BackSide + additive: the shell is invisible where it faces the camera and accumulates
- * only around the silhouette, which is what makes the rim read as depth of air.
- */
-
 import * as THREE from 'three';
 import { extend } from '@react-three/fiber';
 import { OGP_COLORS } from '@/config/ogpTheme';
 import { GLSL_COMMON } from '@/components/canvas/shaders/noise';
 
-const VERTEX_SHADER = /* glsl */ `
+const VERTEX_SHADER =  `
 varying vec3 vViewNormal;
 varying vec3 vViewPosition;
 varying vec3 vWorldNormal;
@@ -37,7 +17,7 @@ void main() {
 }
 `;
 
-const FRAGMENT_SHADER = /* glsl */ `
+const FRAGMENT_SHADER =  `
 uniform vec3 uRimColor;
 uniform vec3 uSunDirection;
 uniform float uPower;
@@ -52,17 +32,12 @@ varying vec3 vWorldNormal;
 ${GLSL_COMMON}
 
 void main() {
-  // BackSide: the geometric normal points away from us, so flip it back before the
-  // Fresnel term, otherwise the rim would appear on the wrong side of the silhouette.
   vec3 normal = normalize(-vViewNormal);
   vec3 viewDir = normalize(vViewPosition);
 
   float fresnel = 1.0 - clamp(dot(normal, viewDir), 0.0, 1.0);
   fresnel = pow(fresnel, uPower);
 
-  // Scattering falls off around the terminator instead of stopping at it: air on the
-  // night side still holds a little light, which is what keeps the rim fragile rather
-  // than graphic. Never a hard ring.
   float sun = dot(normalize(vWorldNormal), normalize(uSunDirection));
   float lit = mix(uNightFloor, 1.0, smoothstep(-0.55, 0.35, sun));
 
@@ -80,11 +55,9 @@ class AtmosphereMaterial extends THREE.ShaderMaterial {
       uniforms: {
         uRimColor: { value: new THREE.Color(OGP_COLORS.atmosRim) },
         uSunDirection: { value: new THREE.Vector3(-0.62, 0.3, 0.72).normalize() },
-        /** Higher = thinner rim. The atmosphere is a breath-layer, not a halo. */
         uPower: { value: 4.2 },
         uIntensity: { value: 1.0 },
         uPresence: { value: 0 },
-        /** How much light the night limb keeps. Small, never zero — air is still there. */
         uNightFloor: { value: 0.08 },
       },
       vertexShader: VERTEX_SHADER,

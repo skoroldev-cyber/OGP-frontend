@@ -1,21 +1,3 @@
-/**
- * PathwayField — S14 ambience, and nothing else.
- *
- * The pathways are "quiet, equal-weight choices ... as serif titles with one-line Inter
- * descriptions" (§8.10.3) and they live entirely in the DOM. That is not an implementation
- * convenience: the canvas is `aria-hidden` decoration, and a choice a screen reader cannot
- * reach is not an equal choice. So this component renders no geometry that corresponds to a
- * pathway, no count of anything, and nothing selectable.
- *
- * What it contributes is air: a sparse drift of gold motes around the reader so the
- * decision is made somewhere rather than on a blank field. §8.10.3 also rules out
- * everything that would make one choice louder — "no highlighted 'recommended' option, no
- * urgency" — and the field is uniform in every direction, so it cannot point anywhere.
- *
- * The ambience behind any one choice is the same ambience behind every other, which is the
- * canvas's entire contribution to that promise.
- */
-
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -28,13 +10,11 @@ const _cameraPosition = new THREE.Vector3();
 
 const PATHWAY_SEED = 0x7a71;
 
-/** Reach of a mote's wander, world units. Paired with the drift-speed token below. */
 const MOTE_REACH = 2.2;
 
-/** Peak opacity. Ambience is felt, not seen. */
 const FIELD_CEILING = 0.42;
 
-const VERTEX = /* glsl */ `
+const VERTEX =  `
 attribute vec3 aSeed;
 
 uniform float uTime;
@@ -72,7 +52,7 @@ void main() {
 }
 `;
 
-const FRAGMENT = /* glsl */ `
+const FRAGMENT =  `
 uniform vec3 uGoldMuted;
 uniform vec3 uGoldDeep;
 
@@ -86,21 +66,11 @@ void main() {
   float alpha = falloff * vAlpha;
   if (alpha <= 0.0015) discard;
 
-  // The deep end of the gold family only. Nothing here glints; a glint would be an
-  // emphasis, and there is nothing in this state that may be emphasised.
   vec3 color = mix(uGoldDeep, uGoldMuted, vTone);
   gl_FragColor = vec4(ogpDeband(color, gl_FragCoord.xy), alpha);
 }
 `;
 
-/**
- * @param {{
- *   stage: { current: Record<string, number> },
- *   tier: 'HIGH'|'MEDIUM'|'LOW',
- *   settings: { particleScale: number },
- *   reducedMotion: boolean,
- * }} props
- */
 export const PathwayField = ({ stage, tier, settings, reducedMotion }) => {
   const groupRef = useRef(null);
   const pointsRef = useRef(null);
@@ -150,8 +120,6 @@ export const PathwayField = ({ stage, tier, settings, reducedMotion }) => {
       uTime: { value: 0 },
       uPresence: { value: 0 },
       uReach: { value: MOTE_REACH },
-      // Peak speed = reach x rate = the token. The ambience obeys the same drift law as
-      // everything else in the build.
       uRate: { value: ORIGIN_FIELD.driftMaxUnitsPerSec / MOTE_REACH },
       uSizeMin: { value: ORIGIN_FIELD.pointSizePx[0] },
       uSizeMax: { value: ORIGIN_FIELD.pointSizePx[1] },
@@ -182,8 +150,6 @@ export const PathwayField = ({ stage, tier, settings, reducedMotion }) => {
     const group = groupRef.current;
     if (!group || !points?.visible) return;
 
-    // The field surrounds the reader wherever they are standing. It follows the camera
-    // exactly: there is no travel in S14, and nothing to give a sense of travel to.
     frameState.camera.getWorldPosition(_cameraPosition);
     const lambda = reducedMotion ? 1e3 : 3 / OGP_MOTION.durations.scene;
     group.position.x = THREE.MathUtils.damp(group.position.x, _cameraPosition.x, lambda, dt);

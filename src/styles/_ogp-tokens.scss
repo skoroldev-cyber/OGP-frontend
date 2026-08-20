@@ -1,128 +1,82 @@
-// =============================================================================
-// OGP DESIGN TOKENS — DOM side
-//
-// The twin of `src/config/ogpTheme.js`. Values here and there are IDENTICAL by
-// contract (BUILD_CONTRACT §7 — "a lint script asserts parity"). Change one, change
-// the other, in the same commit.
-//
-// Parity mapping: `$ogp-void-fog-near`  <->  `OGP_COLORS.voidFogNear`
-// (drop the `$ogp-` prefix, camel-case the rest).
-//
-// Every token is emitted twice: as an SCSS variable here, for compile-time use in mixins
-// and partials, and as a CSS custom property on `:root`, so runtime code (the reader's
-// text-size control, the theme switch) can move a value without a rebuild.
-//
-// This file emits NO CSS. The `:root` custom-property block lives in `_base.scss`, which
-// is loaded exactly once from `main.scss`. That matters because every per-component partial
-// `@use`s this module, and a module's CSS is emitted once *per compilation unit* — a
-// component partial compiled through its own JS import would otherwise re-emit the whole
-// custom-property block, once per component.
-//
-// LAW: no component may hardcode a colour, duration, easing or font that exists here
-// (BUILD_CONTRACT §0.10).
-// =============================================================================
+$ogp-void-deep: #030307;
+$ogp-void-vignette: #000000;
+$ogp-void-fog-near: #06060c;
+$ogp-void-particle: #1a1a26;
 
-// ---- Void (opening field) — master §8.2.1 ----
-$ogp-void-deep: #030307; // base canvas/fog black-violet; never pure #000
-$ogp-void-vignette: #000000; // outer vignette only (radial edge)
-$ogp-void-fog-near: #06060c; // near fog layer
-$ogp-void-particle: #1a1a26; // depth-particle base (pre-gold phase)
+$ogp-gold-core: #ffe9c2;
+$ogp-gold-primary: #d9a64a;
+$ogp-gold-muted: #b58a45;
+$ogp-gold-deep: #6e5320;
+$ogp-gold-text: #cfae6e;
 
-// ---- Gold (warm point, fine golden energy, Living Weave) ----
-$ogp-gold-core: #ffe9c2; // hottest pixel of the warm point / glint core
-$ogp-gold-primary: #d9a64a; // Living Weave strands, logo render, UI accent
-$ogp-gold-muted: #b58a45; // secondary strands, inactive accents
-$ogp-gold-deep: #6e5320; // strand shadow side, dimensionality
-$ogp-gold-text: #cfae6e; // "muted gold" display text on void
+$ogp-atmos-rim: #8fc3ee;
+$ogp-ocean-deep: #0b2e4f;
 
-// ---- Earth echo (UI only; the planet itself uses NASA textures) ----
-$ogp-atmos-rim: #8fc3ee; // thin blue atmospheric rim reference
-$ogp-ocean-deep: #0b2e4f; // deep ocean reference / rare cool accent
+$ogp-read-field: #0e0d0b;
+$ogp-read-surface: #12110e;
+$ogp-read-text: #efe9dc;
+$ogp-read-text-dim: #b9b2a3;
+$ogp-read-rule: #2a2822;
 
-// ---- Reading room quietness ----
-$ogp-read-field: #0e0d0b; // reading environment background (warm near-black)
-$ogp-read-surface: #12110e; // manuscript page surface (7x9 panel)
-$ogp-read-text: #efe9dc; // warm off-white body text
-$ogp-read-text-dim: #b9b2a3; // folios, running heads, metadata
-$ogp-read-rule: #2a2822; // hairlines, quiet separators
+$ogp-focus: #ffe9c2;
+$ogp-error: #c96b5a;
+$ogp-success: #9fb98a;
 
-// ---- Semantic ----
-$ogp-focus: #ffe9c2; // keyboard focus ring (2px, offset 2px), never suppressed
-$ogp-error: #c96b5a; // form validation (muted terracotta; no alarm red)
-$ogp-success: #9fb98a; // quiet confirmation
-
-// ---- Motion — master §8.3.2 ----
-// Seconds in JS (GSAP), milliseconds here (CSS). The numbers are the same durations.
 $ogp-duration-ui-micro: 200ms;
 $ogp-duration-ui-gentle: 600ms;
 $ogp-duration-scene: 1500ms;
 $ogp-duration-passage: 3000ms;
 $ogp-duration-threshold: 4000ms;
 
-// CSS approximations of the GSAP eases. GSAP owns canvas and threshold motion; these
-// exist only for small DOM affordances. Prohibited: bounce, elastic, back, stepped.
-$ogp-ease: cubic-bezier(0.37, 0, 0.63, 1); // sine.inOut
-$ogp-ease-enter: cubic-bezier(0.16, 1, 0.3, 1); // power1.out
-$ogp-ease-exit: cubic-bezier(0.7, 0, 0.84, 0); // power1.in
+$ogp-ease: cubic-bezier(0.37, 0, 0.63, 1);
+$ogp-ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+$ogp-ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
 
-// Idle-fade of the accessibility affordances (§8.7): 40% after 4 s, full on any input.
 $ogp-affordance-idle-delay: 4000ms;
 $ogp-affordance-idle-opacity: 0.4;
-// Chrome auto-recedes during reading and restores on pointer/keyboard intent (§8.7).
+
 $ogp-chrome-receded-opacity: 0.25;
 
-// ---- Typography — master §8.4.1 / §8.4.2 ----
 $ogp-font-serif: 'Literata', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
 $ogp-font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
-$read-size-base: clamp(1.0625rem, 0.95rem + 0.5vw, 1.25rem); // 17–20 px
-$read-line-height: 1.65; // stanza prose breathes
-$read-line-height-stanza: 1.75; // stanza blocks are set looser than prose
-$read-measure: 34em; // ~62–68 characters/line inside the 7x9 panel
-$read-para-space: 0.85em; // no first-line indents; the source uses block breaks
-$display-question: clamp(1.5rem, 1.2rem + 1.8vw, 2.5rem); // threshold display lines
+$read-size-base: clamp(1.0625rem, 0.95rem + 0.5vw, 1.25rem);
+$read-line-height: 1.65;
+$read-line-height-stanza: 1.75;
+$read-measure: 34em;
+$read-para-space: 0.85em;
+$display-question: clamp(1.5rem, 1.2rem + 1.8vw, 2.5rem);
 
-$ogp-epigraph-scale: 1.25; // One-signature epigraphs, §8.4.1
-$ogp-epigraph-space: 2; // line-heights of breathing space above/below
+$ogp-epigraph-scale: 1.25;
+$ogp-epigraph-space: 2;
 
 $ui-size-meta: 0.8125rem;
 $ui-size-control: 0.9375rem;
 $ui-size-panel-title: 1.125rem;
-$ui-caps-tracking: 0.02em; // all-caps labels only
+$ui-caps-tracking: 0.02em;
 
-// 7:9 "Immersive Reading Layout" (§8.4.1); full-width column below the breakpoint.
 $ogp-page-ratio: 0.7778;
-/// The breathing space above and below the page, so it reads as an object in the room rather
-/// than as the window itself. Collapses on mobile, where the page is full-bleed (§3.11).
-$ogp-page-inset: clamp(1rem, 4vh, 3rem);
-/// Barely a radius. Enough to stop the corners reading as a browser chrome rectangle.
-$ogp-page-radius: 3px;
-/// The reading page's own width. Declared once because two things now depend on it: the
-/// scroller that IS the page, and the navigation rails that flank it. If they disagree the
-/// rails drift away from the edge they are supposed to be attached to.
-$ogp-page-width: min(100%, calc(100dvh * #{$ogp-page-ratio} + 6rem));
-/// The rail's own width. A token because the rails position themselves against the page edge
-/// and need to subtract their own width from that calculation.
-$ogp-nav-width: clamp(3.25rem, 4.5vw, 4.5rem);
-/// The rails: flat against the page, curved away from it.
-$ogp-nav-radius: 999px;
-/// How far a rail sits off the page's edge. Close enough to belong to it, clear enough not
-/// to crowd the measure.
-$ogp-nav-gap: clamp(0.25rem, 1vw, 0.75rem);
-$ogp-touch-target: 44px; // §8.10.4 minimum
 
-// ---- Layout ----
+$ogp-page-inset: clamp(1rem, 4vh, 3rem);
+
+$ogp-page-radius: 3px;
+
+$ogp-page-width: min(100%, calc(100dvh * #{$ogp-page-ratio} + 6rem));
+
+$ogp-nav-width: clamp(3.25rem, 4.5vw, 4.5rem);
+
+$ogp-nav-radius: 999px;
+
+$ogp-nav-gap: clamp(0.25rem, 1vw, 0.75rem);
+$ogp-touch-target: 44px;
+
 $breakpoint-mobile: 480px;
-$breakpoint-tablet: 768px; // the 7x9 panel is honoured at and above this width
+$breakpoint-tablet: 768px;
 $breakpoint-desktop: 1024px;
 $breakpoint-wide: 1440px;
 
-// Text over live canvas sits on a >= 40% void-deep scrim (§8.11).
 $ogp-scrim-opacity: 0.4;
 
-// ---- Layer order ----
-// The canvas is decoration; the DOM tree is the experience (§3.10). The veil sits above
-// everything because darkness is the only loading state this application has.
 $z-canvas: 0;
 $z-dom-layer: 10;
 $z-reading-surface: 20;

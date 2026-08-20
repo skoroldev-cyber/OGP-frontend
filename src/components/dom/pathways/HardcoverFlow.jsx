@@ -1,25 +1,3 @@
-/**
- * The product purchase workflow — S14 pathway 3 (master §6.4, §6.7).
- *
- * The other half of the locked separation. This file imports nothing from `ContributeFlow`,
- * shares no state with it, and offers **no cross-sell in either direction, ever**: no "add a
- * contribution to your order", no "consider supporting the mission instead". A donation is
- * never an order with a zero-price product, and an order is never a donation with a
- * fulfilment flag.
- *
- * **Reserve is the launch mode.** Hardcover production is a Publishing Readiness deliverable
- * that is not complete, so the default flow takes an email address and a quantity, charges
- * nothing, and says so plainly in the confirmation: "Nothing has been charged." One
- * notification when the edition is ready — not a drip sequence.
- *
- * **Purchase is built and flag-gated.** It activates only when the server reports the
- * product `purchasable` *and* a `priceCents` exists. No price exists anywhere in the corpus;
- * the field ships null and the founder sets it. Until then the reserve path stands alone
- * with one honest line, and never a scarcity or urgency framing — "limited time" and its
- * relatives are prohibited terms, and `fulfillment_hold` is described as a wait, not a
- * privilege.
- */
-
 import { useCallback, useEffect, useState } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -27,7 +5,6 @@ import { api } from '@/services/api';
 
 import { CollectJsFields } from '@/components/dom/pathways/CollectJsFields';
 
-/** The single orderable item at launch (§6.7 catalogue seed). */
 const HARDCOVER_SKU = 'hardcover-standard';
 
 const MIN_QUANTITY = 1;
@@ -35,9 +12,6 @@ const MAX_QUANTITY = 9;
 
 const looksLikeEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
 
-/**
- * @param {{ onBack: () => void }} props
- */
 export const HardcoverFlow = ({ onBack }) => {
   const [product, setProduct] = useState(null);
   const [email, setEmail] = useState('');
@@ -66,7 +40,7 @@ export const HardcoverFlow = ({ onBack }) => {
         const items = Array.isArray(catalogue?.products) ? catalogue.products : [];
         setProduct(items.find((item) => item.sku === HARDCOVER_SKU) ?? null);
       } catch {
-        // No catalogue means reserve only. Nothing is reported to the reader.
+        void 0;
       }
     })();
 
@@ -75,7 +49,6 @@ export const HardcoverFlow = ({ onBack }) => {
     };
   }, []);
 
-  // Purchase requires BOTH the founder's status flip and a price. Either alone is not enough.
   const purchasable = product?.status === 'purchasable' && Number.isFinite(product?.priceCents);
 
   const onShippingField = useCallback(

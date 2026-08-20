@@ -1,25 +1,7 @@
-// =============================================================================
-// PassageMarks — marking a passage while reading (§3.13)
-//
-// Two things are styled here and nothing else: the persistent underline on a marked range,
-// and the single quiet action offered beside a live selection.
-//
-// The underline is painted through the CSS Custom Highlight API, so the marked range is
-// styled without any element wrapping it — the manuscript's rendered DOM is left exactly as
-// `ManuscriptUnitView` wrote it (§0.3, immutable text). Only the properties the Highlight
-// API accepts are usable in that rule; a border, a padding or a background image there would
-// be silently ignored, which is why the cue is a decoration and not a box.
-//
-// There is no panel, no card, no arrow, no shadow stack and no scrim in this file. The action
-// is a word next to the reader's own selection, and §14.4.1 forbids anything more.
-// =============================================================================
-
 @use 'sass:color';
 @use 'ogp-tokens' as *;
 @use 'mixins' as *;
 
-// A marked range: a hairline in muted gold, set well below the baseline so descenders keep
-// their shape. Restrained by intent — the reader is meant to be able to keep reading past it.
 ::highlight(ogp-passage-mark) {
   text-decoration-line: underline;
   text-decoration-color: color-mix(in srgb, var(--ogp-gold-muted) 85%, transparent);
@@ -30,13 +12,12 @@
 .ogp-passage-mark {
   position: fixed;
   z-index: $z-chrome;
-  // Two actions on an already-marked passage — remove it, or write about it — sit on one
-  // line beside the selection. They stay a row of words, not a toolbar.
+
   display: flex;
   gap: 0.3rem;
   align-items: center;
   transform: translateX(-50%);
-  // The action sits beside the selection; the selection stays the reader's to extend or drop.
+
   pointer-events: auto;
 
   &[data-above='true'] {
@@ -62,8 +43,6 @@
       color: var(--ogp-gold-text);
     }
 
-    // The note carries its glyph, which is what distinguishes it at a glance from the
-    // removal beside it without either one becoming the louder of the two.
     &--note {
       gap: 0.4rem;
       padding-left: 0.7rem;
@@ -77,8 +56,6 @@
     color: inherit;
   }
 
-  // The honest limit, in the same place the action would have been. A statement, not a
-  // control: there is nothing here to press.
   &__notice {
     max-width: 22ch;
     padding: 0.5rem 0.9rem;

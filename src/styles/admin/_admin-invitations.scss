@@ -1,12 +1,3 @@
-// =============================================================================
-// OPERATIONS PANEL — invitations
-//
-// The address preview and the per-address result table. Both are lists of facts about
-// individual people, so both are set at full contrast and neither is ever collapsed
-// behind a summary: the whole point of the screen is that what will happen, and then
-// what did happen, is visible one line at a time.
-// =============================================================================
-
 @use '../ogp-tokens' as *;
 @use '../mixins' as *;
 @use 'admin-shell' as shell;

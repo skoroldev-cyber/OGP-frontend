@@ -1,39 +1,16 @@
-// =============================================================================
-// AccessibilityControls
-//
-// Bottom edge, low emphasis, always present. `_base.scss` already carries the geometry of
-// `.ogp-affordances`; this partial adds the contrast guarantees the idle fade needs, and
-// the scrim that keeps the controls legible over live canvas (§8.11).
-// =============================================================================
-
 @use 'sass:color';
 @use 'ogp-tokens' as *;
 @use 'mixins' as *;
 
-/// Out of sight, still reachable.
-///
-/// The controls are not drawn: over an authored scene they sat on the artwork, and the reader
-/// asked for them gone. They are NOT removed from the page, because §2.10 and §14.4.2 make
-/// skip, motion adjustment and silent continue mandatory from S1 — a reader on a keyboard, a
-/// screen reader, or with a vestibular disorder still has to be able to reach them.
-///
-/// So this is the skip-link pattern: invisible until something focuses it, fully visible the
-/// instant it does. The first Tab brings the whole cluster back at full contrast. Nothing is
-/// on screen for a reader who never asks; nothing is lost for a reader who needs it.
-///
-/// If they should be visible again, delete this block — the geometry beneath it is unchanged.
 .ogp-accessibility-controls:not(:focus-within) {
   opacity: 0;
-  // Not `visibility: hidden` or `display: none`: either would take the controls out of the
-  // focus order, which is the one thing that must survive.
+
   pointer-events: none;
 }
 
 .ogp-accessibility-controls {
   &.ogp-accessibility-controls {
-    // Any text over variable imagery sits on a >= 40% void-deep scrim, sized to the block
-    // and verified at the brightest frame beneath it (§8.11). The cluster spans the full
-    // width, so the scrim is a band rather than the mixin's ellipse.
+
     background: linear-gradient(
       180deg,
       #{color.change($ogp-void-deep, $alpha: 0)} 0%,
@@ -42,12 +19,6 @@
     );
     transition: opacity var(--ogp-duration-ui-gentle) var(--ogp-ease);
 
-    // Full contrast the moment focus reaches them — the first Tab is enough.
-    //
-    // Hover deliberately does not reveal them any more. While they were drawn, hover restoring
-    // contrast was right; now that they are hidden, a pointer wandering near the bottom edge
-    // would make a row of controls appear over the scene unasked, which is the opposite of
-    // what was wanted.
     &:focus-within {
       opacity: 1;
     }
@@ -56,7 +27,6 @@
   .ogp-affordance {
     white-space: nowrap;
 
-    // The pressed state is carried by colour and by `aria-pressed`, never by a badge.
     &[aria-pressed='true'] {
       color: var(--ogp-gold-text);
     }

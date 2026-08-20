@@ -1,11 +1,3 @@
-/**
- * Invitations — the compose panel above the records it changes.
- *
- * The two panels share the cohorts and the template set, so they are read once here and
- * handed down; a screen that fetched the same cohort list twice would show two different
- * pickers the moment one of them was stale.
- */
-
 import { useCallback, useState } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -15,9 +7,6 @@ import { useAdminResource } from '@/admin/useAdminResource';
 import { InvitationCompose } from '@/admin/screens/InvitationCompose';
 import { InvitationList } from '@/admin/screens/InvitationList';
 
-/**
- * @returns {import('react').ReactElement} The invitations screen.
- */
 export function InvitationsScreen() {
   const [reloadSignal, setReloadSignal] = useState(0);
 

@@ -1,30 +1,3 @@
-/**
- * A note about one marked passage, written while reading.
- *
- * **This is a deliberate departure from §3.13, made on the founder's instruction.** The clause
- * places the instrument after completion — "Please read the Opening Arc without stopping to
- * edit" — and the reasoning behind it is sound: a reader interrupted to evaluate stops being a
- * reader. What is built here keeps everything that reasoning protects and gives up only the
- * timing:
- *
- *   · Nothing asks. This never opens on its own, never appears on a schedule, never follows a
- *     unit boundary. It opens because the reader marked a passage and then chose a second
- *     control that says exactly what it will do.
- *   · Nothing is owed. There is no prompt, no counter of notes written, no acknowledgement
- *     beyond one line, and closing without writing costs nothing (§14.4.1).
- *   · Nothing is lost by ignoring it. The passage is still marked, still listed at S13, and
- *     the reader can still write about it there instead — this is an additional door onto the
- *     same room, not a replacement for it.
- *
- * The reference travels with the words. `passages[]` carries `{ unitId, excerpt, charStart,
- * charEnd }`, which is what lets a reviewer open the exact sentence the reader meant rather
- * than reconstruct it from a description — the same anchor the S13 form sends, produced by the
- * same marks.
- *
- * The reader's text is never cleared on failure. A note refused for any reason stays on
- * screen, in the box, with a line saying what happened.
- */
-
 import { useCallback, useId, useState } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -34,13 +7,6 @@ import { hasRange } from '@/components/dom/ReadingSurface/usePassageMarks';
 import { ChannelIcon } from '@/components/dom/ChannelIcon';
 import { Modal } from '@/components/dom/Modal';
 
-/**
- * The same mapping the S13 form uses, for the same reason: one sentence for every cause is
- * only kind when every cause has the same remedy, and these do not.
- *
- * @param {unknown} error
- * @returns {string}
- */
 const explain = (error) => {
   if (!(error instanceof ApiError)) return COPY.FEEDBACK.UNAVAILABLE;
   if (error.code === CLIENT_ERROR_CODES.NETWORK) return COPY.FEEDBACK.OFFLINE;
@@ -50,23 +16,8 @@ const explain = (error) => {
   return COPY.FEEDBACK.UNAVAILABLE;
 };
 
-/**
- * Deliberately permissive, and identical to the S13 form's. The address is checked so that a
- * reader who asked to be written back to is not left with a reply that can never arrive; it is
- * not checked to police anybody.
- *
- * @param {string} value
- * @returns {boolean}
- */
 const looksLikeEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
 
-/**
- * The wire shape of one passage anchor. `componentIndex` is resolved server-side from the
- * unit, so a client cannot file a note against a component the passage does not belong to.
- *
- * @param {Object} mark
- * @returns {{ unitId: string, excerpt?: string, charStart?: number, charEnd?: number }}
- */
 const toPassage = (mark) => {
   const passage = { unitId: mark.unitId };
   if (mark.excerpt) passage.excerpt = mark.excerpt;
@@ -77,9 +28,6 @@ const toPassage = (mark) => {
   return passage;
 };
 
-/**
- * @param {{ mark: Object, onClose: () => void }} props
- */
 export const PassageNote = ({ mark, onClose }) => {
   const ids = useId();
 
@@ -92,8 +40,6 @@ export const PassageNote = ({ mark, onClose }) => {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
 
-  // Said while it can still be acted on, never as a refusal: an address typed with the box
-  // unticked is a misunderstanding worth naming, not a mistake worth blocking.
   const addressWillBeDropped = email.trim() !== '' && !contactConsent;
 
   const onSubmit = useCallback(async () => {
@@ -125,8 +71,6 @@ export const PassageNote = ({ mark, onClose }) => {
       };
       if (category !== '') payload.category = category;
       if (displayName.trim() !== '') payload.displayName = displayName.trim();
-      // Sent only with consent. The server would discard it anyway, but an address that was
-      // never transmitted cannot be discarded incorrectly.
       if (contactConsent) payload.email = address;
 
       await api.submitFeedback(payload);
@@ -141,7 +85,6 @@ export const PassageNote = ({ mark, onClose }) => {
   if (sent) {
     return (
       <Modal title={COPY.FEEDBACK.PASSAGE_NOTE_TITLE} onClose={onClose} className="ogp-passage-note">
-        {/* One line. The reading is what the reader came back to. */}
         <p className="ogp-passage-note__confirmation" role="status">
           {COPY.FEEDBACK.CONFIRMATION}
         </p>
@@ -161,8 +104,6 @@ export const PassageNote = ({ mark, onClose }) => {
         </button>
       }
     >
-      {/* The reader's own passage, shown first: it is the reference, and seeing it is how
-          they know the note will arrive attached to the right words. */}
       <figure className="ogp-passage-note__reference">
         <ChannelIcon name="passage" className="ogp-passage-note__reference-icon" />
         <blockquote className="ogp-passage-note__excerpt">
@@ -231,7 +172,6 @@ export const PassageNote = ({ mark, onClose }) => {
           </p>
         )}
 
-        {/* Off by default, and the note says exactly what ticking it does (§9.2.7). */}
         <label className="ogp-passage-note__consent">
           <input
             type="checkbox"

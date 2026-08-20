@@ -1,23 +1,6 @@
-// =============================================================================
-// OPERATIONS PANEL — the returned Test Questionnaire
-//
-// Two shapes: the histogram behind each scaled question, and one returned instrument read
-// as a document.
-//
-// The answers are set as a numbered list of question-and-answer pairs rather than as a
-// table. A table would fit nineteen rows and would be unreadable at the third: the answers
-// are paragraphs, and paragraphs in cells wrap into columns nobody can follow.
-//
-// The question is set in the interface face like everything else in this panel. It is a
-// research prompt, not the manuscript — the one place the serif is permitted here is a
-// quoted passage in `_admin-feedback.scss`.
-// =============================================================================
-
 @use '../ogp-tokens' as *;
 @use '../mixins' as *;
 @use 'admin-shell' as shell;
-
-// ---- Rating distributions -----------------------------------------------------
 
 .ogp-admin-ratings {
   display: grid;
@@ -107,8 +90,6 @@
   background-color: shell.$admin-accent-soft;
 }
 
-// ---- One returned instrument --------------------------------------------------
-
 .ogp-admin-answer-list {
   display: flex;
   flex-direction: column;
@@ -129,8 +110,6 @@
   counter-increment: ogp-admin-answer;
 }
 
-// The instrument numbers its questions, so this does too — from the list position rather
-// than from the identifier, which is a join key and not a number anybody should read.
 .ogp-admin-answer__label {
   font-weight: 600;
 
@@ -172,7 +151,6 @@
   font-size: var(--ogp-ui-size-meta);
 }
 
-// `pre-wrap`: a reviewer who typed three paragraphs gets three paragraphs back.
 .ogp-admin-answer__text {
   margin-top: 0.625rem;
   line-height: 1.6;

@@ -1,11 +1,3 @@
-// =============================================================================
-// OPERATIONS PANEL — message templates
-//
-// Editor on the left, the four placeholders documented on the right, preview beneath.
-// The placeholder list sits *beside* the editor rather than under a disclosure because
-// a name typed from memory is the failure this screen exists to prevent.
-// =============================================================================
-
 @use '../ogp-tokens' as *;
 @use '../mixins' as *;
 @use 'admin-shell' as shell;
@@ -63,9 +55,6 @@
   font-weight: 600;
 }
 
-/// The rendered HTML message, fully sandboxed. Given a hard background of its own so a
-/// message written for a white mail client is read as it will actually arrive rather
-/// than as it looks against this panel's paper.
 .ogp-admin-frame {
   width: 100%;
   height: 22rem;

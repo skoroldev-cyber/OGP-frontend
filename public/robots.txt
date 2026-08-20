@@ -10,6 +10,10 @@ Allow: /
 # indexed: it serves a pre-public edition to a named cohort (§5, §13).
 Disallow: /openingarc
 
+# The beta test questionnaire is sent to named reviewers after they have read the pre-public
+# edition. Indexed, it would collect answers about a manuscript from people who never read it.
+Disallow: /test-questionnaire
+
 # Share links are private continuity transfers between two people, not public documents.
 Disallow: /s/
 

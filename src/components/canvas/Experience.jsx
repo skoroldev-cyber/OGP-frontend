@@ -1,37 +1,3 @@
-/**
- * Experience — the scene root.
- *
- * There is ONE scene for S0–S14. Nothing here mounts a "page", switches a "screen", or
- * tears down what came before: "The experience is one continuous application with state
- * transitions rather than disconnected web pages" (§2.1, locked), and "one continuous
- * unfolding, not seven pages" (§2.3 quality 2). Every state morphs from the previous
- * state's final frame.
- *
- * HOW THAT IS ENFORCED. State does not choose what EXISTS; it chooses a set of target
- * PRESENCES. A single `useFrame` damps the live presences toward those targets, and each
- * sub-scene reads its own number out of a ref. Consequences:
- *
- *   - No sub-scene is ever unmounted in response to a state change, so there is no
- *     remount, no re-upload and no first-frame flash.
- *   - No presence can step. Every visual change is a ramp of at least `durations.scene`
- *     (or `durations.threshold` under reduced motion), which satisfies §8.3.1's "opacity
- *     ramps >= 1.5 s in canvas" everywhere at once rather than component by component.
- *   - The state table can be read as a lighting plot, because that is what it is.
- *
- * Heavy scenes are mounted with a generous lead — Earth and the passage from S2, the room
- * from S6 — so their first frame is always drawn behind a presence of zero. Combined with
- * `RoomWarmup`'s `gl.compileAsync` pass, nothing is ever compiled or uploaded on a frame
- * the reader is looking at.
- *
- * REDUCED MOTION is a separate, complete lighting plot — not the same plot with the
- * animation removed. It sequences the stills the score names (dark frame -> field stills ->
- * weave still -> Earth-in-opening stills -> hero frame) and drops Earth's presence to zero
- * across S6 so the hero composition can be staged in front of a camera that never moves.
- *
- * The canvas renders NO text and is `aria-hidden` (owned by `App.jsx`). For S8–S13 the
- * accessible DOM tree is the experience.
- */
-
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -64,11 +30,6 @@ import '@/components/canvas/shaders/WeaveMaterial';
 import '@/components/canvas/shaders/AtmosphereMaterial';
 import '@/components/canvas/shaders/LuminousRevealMaterial';
 
-/* -------------------------------------------------------------------------- */
-/* The lighting plot                                                           */
-/* -------------------------------------------------------------------------- */
-
-/** Every presence the scene tracks. Absent keys inherit 0, so a row states only what is on. */
 const REST = Object.freeze({
   depth: 0,
   speck: 0,
@@ -81,15 +42,6 @@ const REST = Object.freeze({
   stars: 0,
 });
 
-/**
- * Full-motion plot. S0 and S1 are deliberately identical — S0 "must never be perceptible
- * as distinct from S1" (§2.4.1), and the surest way to achieve that is for there to be
- * nothing to perceive between them.
- *
- * The depth field never reaches zero after S1: it thins as the reader travels, but the
- * void keeps its layered gradient the whole way, because flat black is a wall at every
- * point of the arc, not only at the start.
- */
 const PLOT_FULL = Object.freeze({
   [STATES.S0_SITE_ARRIVAL]: { depth: 1 },
   [STATES.S1_DARKNESS]: { depth: 1 },
@@ -121,16 +73,6 @@ const PLOT_FULL = Object.freeze({
   },
 });
 
-/**
- * Reduced-motion plot — the per-state STILL SEQUENCE, first-class and complete.
- *
- * Two rows differ in kind rather than degree:
- *   S6  the passage is absent entirely ("no camera travel: opening brightens, slow
- *       crossfade to the S7 still composition", §2.4.7 fallback) and Earth's presence goes
- *       to ZERO — which is what lets `EarthGroup` re-stage its pose behind nothing at all,
- *       so the hero frame can be composed in front of a camera that never moved.
- *   S7  the hero frame arrives as a dissolve onto that re-staged Earth.
- */
 const PLOT_REDUCED = Object.freeze({
   ...PLOT_FULL,
   [STATES.S3_LOGO_MANIFESTATION]: { depth: 1, speck: 1, weave: 1 },
@@ -140,7 +82,6 @@ const PLOT_REDUCED = Object.freeze({
   [STATES.S7_EARTH_REVEAL]: { depth: 0.1, earth: 1, stars: 1 },
 });
 
-/** Sub-scenes mount this far ahead of the state that needs them. */
 const MOUNT_FROM = Object.freeze({
   passage: STATES.S2_DISTANT_SPECK,
   earth: STATES.S2_DISTANT_SPECK,
@@ -148,16 +89,7 @@ const MOUNT_FROM = Object.freeze({
   pathways: STATES.S12_CONTINUE_READING,
 });
 
-/**
- * @param {string} state
- * @param {string} threshold
- * @returns {boolean}
- */
 const atOrAfter = (state, threshold) => stateIndex(state) >= stateIndex(threshold);
-
-/* -------------------------------------------------------------------------- */
-/* Root                                                                        */
-/* -------------------------------------------------------------------------- */
 
 const Experience = () => {
   const {
@@ -172,26 +104,16 @@ const Experience = () => {
   const { tier, settings } = usePerformance();
   const size = useThree((frameState) => frameState.size);
 
-  /** Live presences, read by every sub-scene inside its own `useFrame`. Never state. */
   const stage = useRef({
     ...REST,
-    /** Published by `DistantSpeck`: the S2 perceptual order, light -> movement -> structure. */
     speckPhase: 0,
     speckStructure: 0,
-    /** Published by `PortalEntry`: how far the aperture has eased outward. */
     portalOpen: 0,
-    /** Published by `WeavePassage`: the fully-bright centre frames used for the crossfade. */
     passageBright: 0,
-    /** Seconds in the current state, and that as a fraction of the score's envelope. */
     stateElapsed: 0,
     stateProgress: 0,
   });
 
-  /**
-   * Earth's layer amounts. `EarthGroup` writes the locked reveal order into it;
-   * `EarthPresence` writes the Reading Room's dimming, defocus and recession. One object,
-   * two authors, no shared writes — which is why neither needs to know about the other.
-   */
   const layers = useRef({
     rim: 0,
     ocean: 0,
@@ -205,7 +127,6 @@ const Experience = () => {
     recede: 0,
   });
 
-  /** The Living Weave's control surface, shared with `PortalEntry`. */
   const weaveControl = useRef(null);
 
   const stateElapsed = useRef(0);
@@ -215,10 +136,6 @@ const Experience = () => {
   const isLowTier = tier === TIERS.LOW;
   const plot = reducedMotion ? PLOT_REDUCED : PLOT_FULL;
 
-  /* ---- readiness ------------------------------------------------------- */
-  // The provider warms the NETWORK; this marks the GPU. A group is only truly ready when
-  // its programs are compiled and its first frame has been drawn, and only the canvas
-  // knows that. Idempotent: each group is announced exactly once.
   const announce = useCallback(
     (group) => {
       if (marked.current[group]) return;
@@ -236,10 +153,6 @@ const Experience = () => {
   const onEarthReady = useCallback(() => announce(ASSET_GROUPS.EARTH), [announce]);
   const onRoomReady = useCallback(() => announce(ASSET_GROUPS.READING_CORE), [announce]);
 
-  /* ---- scene completion ------------------------------------------------ */
-  // `complete` is a SCENE signal, never a reader intent: it can unblock a forward guard,
-  // and it can never walk a reader past a state that is waiting for them (S5, S8, S13).
-  // Guarded on the current state so a late callback from a state already left is dropped.
   const reportComplete = useCallback(
     (forState) => {
       if (state !== forState) return;
@@ -269,7 +182,6 @@ const Experience = () => {
     [reportComplete],
   );
 
-  /* ---- camera and frame budget ----------------------------------------- */
   useGuidedCamera({ state, reducedMotion, setCameraOverride, cameraOverrideRef });
 
   const inRoom = atOrAfter(state, STATES.S9_READING_ROOM_INIT);
@@ -278,8 +190,6 @@ const Experience = () => {
     fps: motionPreference === MOTION_PREFERENCES.OFF ? 0 : settings.ambientFps,
   });
 
-  // The state clock restarts with the state, and a boundary always gets one frame even
-  // when the ambient ticker is at zero.
   useEffect(() => {
     stateElapsed.current = 0;
     stage.current.stateElapsed = 0;
@@ -287,12 +197,6 @@ const Experience = () => {
     invalidate();
   }, [state, invalidate]);
 
-  /**
-   * Earth's pose. Fixed in the world under full motion — the reader approaches Earth, and
-   * Earth never approaches the reader. Under reduced motion the hero framing is achieved
-   * by placing Earth in front of the static camera instead; `EarthGroup` only ever adopts
-   * the change while its presence is zero, so the swap is a still replacing a still.
-   */
   const earthPose = useMemo(
     () =>
       reducedMotion && atOrAfter(state, STATES.S6_WEAVE_PASSAGE)
@@ -303,7 +207,6 @@ const Experience = () => {
 
   const aspect = size.height > 0 ? size.width / size.height : 1;
 
-  /* ---- the one place presence changes ---------------------------------- */
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.1);
     const live = stage.current;
@@ -317,13 +220,6 @@ const Experience = () => {
 
     const targets = plot[state] ?? REST;
 
-    // Two adjustments layered onto the plot, both of them crossfades rather than cuts:
-    //
-    //   weave    the field is traded away across the passage's fully-bright centre frames,
-    //            so the scene graphs cross over inside the light and there is nothing to
-    //            see the switch by (§2.4.7).
-    //   weave    during S2 the field is admitted ONLY by the speck's structure phase, so
-    //            structure can never precede light and movement.
     const bright = live.passageBright;
     let weaveTarget = targets.weave ?? 0;
     if (state === STATES.S2_DISTANT_SPECK) {
@@ -333,7 +229,6 @@ const Experience = () => {
       weaveTarget *= 1 - bright;
     }
 
-    // Reduced motion crossfades slowly by design: "slow fades only".
     const lambda =
       3 / (reducedMotion ? OGP_MOTION.durations.threshold : OGP_MOTION.durations.scene);
 
@@ -354,8 +249,6 @@ const Experience = () => {
 
   return (
     <group>
-      {/* The darkness. Present from the first frame and never fully withdrawn — it is the
-          loading veil, and afterwards it is the room the whole journey happens inside. */}
       <DepthParticles
         stage={stage}
         tier={tier}
@@ -436,9 +329,6 @@ const Experience = () => {
         />
       )}
 
-      {/* itom's warm-up idiom: the injected-program materials are compiled 500 units below
-          the scene, then this unmounts itself. The 8 s ceiling inside `RoomWarmup` ALWAYS
-          releases the gate — a slow device breathes longer in darkness, it never hangs. */}
       {!warmed.current && (
         <RoomWarmup onComplete={onWarmupComplete} isLowTier={isLowTier}>
           <points frustumCulled={false}>

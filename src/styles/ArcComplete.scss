@@ -1,10 +1,3 @@
-// =============================================================================
-// ArcComplete — S13
-//
-// A full viewport of quiet, then one affordance. In beta builds a second, equally weighted
-// affordance sits beside it. Nothing else is on this screen.
-// =============================================================================
-
 @use 'sass:color';
 @use 'ogp-tokens' as *;
 @use 'mixins' as *;
@@ -21,7 +14,7 @@
   background-color: var(--ogp-read-field);
 
   &__quiet {
-    // The held space after the final line. It is the content of this state (§3.13).
+
     flex: 0 0 auto;
     height: 38dvh;
   }
@@ -44,9 +37,7 @@
 
   &__observations,
   &__note {
-    // The exact locked label, at the same weight as the ordinary continue. Both are
-    // additional doors, not promoted ones — a reader who takes neither loses nothing, and
-    // nothing on this screen may suggest otherwise.
+
     font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.15);
   }
 

@@ -1,10 +1,3 @@
-// =============================================================================
-// ReadingRoomInvitation — S8
-//
-// The passage, the invitation, and three quiet secondary controls. Nothing else.
-// Every text block over the live Earth composition carries the scrim (§8.11).
-// =============================================================================
-
 @use 'sass:color';
 @use 'ogp-tokens' as *;
 @use 'mixins' as *;
@@ -16,10 +9,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  // The scene owns the centre. It draws the passage as its own typography and animates
-  // objects through the middle of the frame, so anything centred here lands on top of the
-  // artwork — which is exactly what the invitation was doing, sitting across the words.
-  // The invitation moves to the lower third: present, unmissable, and out of the composition.
+
   justify-content: flex-end;
   padding: 2rem 1.5rem;
   padding-bottom: max(4rem, calc(env(safe-area-inset-bottom) + 3.5rem));
@@ -31,23 +21,15 @@
   }
 
   &__passage {
-    // The protected first words sit over live imagery — the authored scene under the Spline
-    // entrance, the Earth composition otherwise. Either way the ground beneath them moves, so
-    // §8.11's scrim rule applies: text over variable imagery carries its own ground, verified
-    // at the brightest frame of what is behind it. The scrim moves with the text rather than
-    // dimming the whole scene, so the composition stays intact.
+
     @include scrim;
 
     max-width: 26ch;
-    // Warm off-white on the scrim: the reading pair, ~15:1 (§8.11).
+
     color: var(--ogp-read-text);
     line-height: 1.45;
   }
 
-  /// The authored scene carries this moment, so the passage is not drawn — but it stays in
-  /// the accessible tree, because from S8 onward that tree IS the experience (§3.10).
-  /// `visually-hidden` keeps it reachable by a screen reader and invisible to everyone else;
-  /// `display: none` would take it from both.
   &__passage--scene {
     @include visually-hidden;
   }
@@ -55,18 +37,12 @@
   &__enter {
     @include scrim;
 
-    /// White rather than the gold the threshold actions use elsewhere.
-    ///
-    /// The scene beneath is warm and metallic, and muted gold sat inside its own palette
-    /// instead of standing clear of it. `read-text` is the warm off-white the manuscript is
-    /// set in, so the invitation now reads in the voice of the thing it opens — and against
-    /// `void-deep` it carries roughly 15:1, comfortably past the 4.5:1 floor (§8.11).
     .ogp-invitation {
       color: var(--ogp-read-text);
 
       &:hover,
       &:focus-visible {
-        // The glow stays gold: the response to intent is the one place the gold belongs here.
+
         color: var(--ogp-gold-core);
       }
     }

@@ -1,11 +1,3 @@
-// =============================================================================
-// ReadingNav — the rails either side of the page
-//
-// Half-rounded and anchored to the reading column, not the window: the flat edge sits against
-// the page and the curve faces away, so each rail reads as attached to the thing it moves.
-// Large enough to hit without aiming, quiet enough to forget while reading.
-// =============================================================================
-
 @use 'sass:color';
 @use 'ogp-tokens' as *;
 @use 'mixins' as *;
@@ -24,15 +16,10 @@
   cursor: pointer;
   transform: translateY(-50%);
 
-  // Barely there. The ground is a suggestion of glass rather than a surface: enough to lift
-  // the arrow off whatever is behind it, not enough to become an object in its own right.
-  // The blur does most of the work — a low alpha with a strong blur reads as depth, while a
-  // higher alpha with less blur reads as a grey rectangle.
   background: color-mix(in srgb, var(--ogp-scrim) 14%, transparent);
   backdrop-filter: blur(18px) saturate(120%);
   -webkit-backdrop-filter: blur(18px) saturate(120%);
 
-  // Receded while reading. The manuscript is what the reader came for (§8.7).
   opacity: 0.22;
   transition:
     opacity var(--ogp-duration-ui-gentle) var(--ogp-ease),
@@ -51,41 +38,22 @@
     @include focus-ring;
   }
 
-  // Present but inert at the ends of the arc. Removing it would make the frame change shape
-  // as the reader moves, which is more distracting than a dimmed arrow.
   &:disabled {
     opacity: 0.06;
     cursor: default;
   }
 
   svg {
-    // The arrow leans very slightly toward its direction of travel on approach — the whole
-    // movement is a few pixels, well inside "nothing snaps" (§8.3.2).
+
     transition: transform var(--ogp-duration-ui-gentle) var(--ogp-ease);
   }
 
-  // Anchored to the PAGE, not the viewport.
-  //
-  // At the window edges the rails belonged to the browser: on a wide display they sat a long
-  // way from the text they move, and the reader's eye had to leave the page to find them.
-  // Positioning them off the reading column's own edges makes them part of the page — the
-  // same object, with a way forward and a way back on either side of it.
-  //
-  // `min(...)` is the clamp, and the direction matters.
-  //
-  // A larger `right` pushes the rail further from the right edge — further LEFT. So the ceiling
-  // that keeps it on screen has to be the SMALLER of the two values, not the larger. With
-  // `max()` the viewport term won on every wide display and both rails were thrown out to the
-  // window edges, which is the opposite of being anchored to the page.
-  //
-  // First term: sit against the page edge. Second: never leave the viewport, for narrow windows
-  // where the page approaches full width. Whichever is nearer the page wins.
   &--previous {
     right: min(
       calc(50% + #{$ogp-page-width} / 2 + #{$ogp-nav-gap}),
       calc(100% - #{$ogp-nav-width} - #{$ogp-nav-gap})
     );
-    // Flat against the page, curved away from it: the rail reads as attached to the column.
+
     border-radius: $ogp-nav-radius 0 0 $ogp-nav-radius;
 
     &:hover:not(:disabled) svg,
@@ -107,9 +75,6 @@
     }
   }
 
-  // On a phone the page is full-bleed, so a rail would sit on top of the text. They shrink to
-  // the edges and lose the ground entirely — the keyboard and the scroll are the real controls
-  // there, and a thumb reaching the extreme edge is a deliberate act.
   @include respond-to(mobile) {
     width: 2.25rem;
     height: clamp(5rem, 16vh, 7rem);

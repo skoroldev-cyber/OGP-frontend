@@ -1,13 +1,3 @@
-/**
- * The audit log. Read-only for every role, including the founder (§10.9).
- *
- * Nobody edits history, so there is no action on any row — only the filters that find an
- * entry and the disclosure that opens its diff. `before` and `after` arrive as capped JSON
- * strings rather than as objects, which is what lets the response envelope stay closed; they
- * are shown as text, unparsed, because reformatting an audit record is a small lie about what
- * was recorded.
- */
-
 import { useCallback, useId, useState } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -18,7 +8,6 @@ import { Panel } from '@/admin/components/Panel';
 import { ResourceState } from '@/admin/components/ResourceState';
 import { useAdminResource } from '@/admin/useAdminResource';
 
-/** Every filter, cleared. */
 const NO_FILTERS = Object.freeze({
   action: '',
   target: '',
@@ -28,10 +17,6 @@ const NO_FILTERS = Object.freeze({
   to: '',
 });
 
-/**
- * @param {typeof NO_FILTERS} filters The applied filters.
- * @returns {object} The query.
- */
 const asQuery = (filters) => {
   const query = {};
   for (const [name, value] of Object.entries(filters)) {
@@ -43,9 +28,6 @@ const asQuery = (filters) => {
   return query;
 };
 
-/**
- * @returns {import('react').ReactElement} The audit screen.
- */
 export function AuditScreen() {
   const ids = useId();
 
@@ -61,11 +43,6 @@ export function AuditScreen() {
   const { status, data, error, reload } = useAdminResource(load);
   const entries = data?.entries ?? [];
 
-  /**
-   * @param {string} name The filter name.
-   * @param {string} value The value.
-   * @returns {void}
-   */
   const setFilter = (name, value) => setDraft((previous) => ({ ...previous, [name]: value }));
 
   return (

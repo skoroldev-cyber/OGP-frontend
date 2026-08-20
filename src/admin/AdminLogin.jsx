@@ -1,26 +1,3 @@
-/**
- * Operations sign-in.
- *
- * Two shapes, chosen by `ADMIN_LOCAL_GATE.enabled`:
- *
- *   · **Interim** — a name and a password, checked in the browser. No second factor, no server.
- *     Read `adminLocalGate.js` before relying on it for anything; it is a development gate and
- *     it is off in production builds.
- *   · **Real** — name, password and authenticator code, all three in one request. MFA is
- *     mandatory for every role including the founder (§9.2.10, §10.8.2), so there is no
- *     two-step form and no intermediate screen in which a correct password has bought
- *     anything. The server answers every wrong combination with one code and one message, and
- *     this form repeats it and adds nothing: telling an operator *which* factor was wrong
- *     tells an attacker the same thing.
- *
- * The authenticator field is not deleted, only unmounted. Turning the gate off restores the
- * mandated form exactly as specified.
- *
- * §8.8 lets a support surface carry the site tagline, which never appears inside the opening
- * experience. This is the one place in the panel where it belongs: the sign-in page is the
- * organisation's face on its own tool.
- */
-
 import { useId, useState } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -30,9 +7,6 @@ import { ADMIN_LOCAL_GATE } from '@/admin/adminLocalGate';
 
 const TOTP_PATTERN = /^[0-9]{6}$/;
 
-/**
- * @returns {import('react').ReactElement} The sign-in screen.
- */
 export function AdminLogin() {
   const { signIn, pending, failure, expired } = useAdminSession();
   const localGate = ADMIN_LOCAL_GATE.enabled;
@@ -43,10 +17,6 @@ export function AdminLogin() {
   const [totpCode, setTotpCode] = useState('');
   const [localFailure, setLocalFailure] = useState(null);
 
-  /**
-   * @param {import('react').FormEvent} event The submission.
-   * @returns {void}
-   */
   const onSubmit = (event) => {
     event.preventDefault();
     if (pending) return;
@@ -65,8 +35,6 @@ export function AdminLogin() {
     if (!localGate) credentials.totpCode = totpCode.trim();
 
     signIn(credentials).catch(() => {
-      // The provider holds the failure; the form clears the one-time code so the next
-      // attempt cannot silently reuse a code the server has already consumed.
       setTotpCode('');
     });
   };

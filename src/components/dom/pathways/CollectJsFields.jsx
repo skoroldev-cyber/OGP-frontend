@@ -1,41 +1,12 @@
-/**
- * NMI Collect.js hosted inline fields (master §6.5.3).
- *
- * **Card data never touches this application's DOM, JavaScript or servers.** The number,
- * expiry and security code render inside NMI-hosted iframes; Collect.js tokenizes them and
- * hands back a single-use `payment_token`, which is the only thing the backend ever sees.
- * That is what keeps the platform PCI DSS SAQ-A eligible, and it is why these three fields
- * are containers rather than inputs.
- *
- * **Inline integration only.** NMI also ships a lightbox; a lightbox is a popup, and popups
- * are a prohibited mechanic. The `variant: 'inline'` option is not a preference here.
- *
- * The script is fetched **only when a payment flow is actually opened** — never on the
- * landing, never during reading, never speculatively. A third-party request from the public
- * build is permitted only for approved origins, and only when the reader has chosen to pay.
- *
- * With no public tokenization key configured the component degrades to one plain line and
- * no fields: `COPY.PAYMENT.UNAVAILABLE`. Nothing throws, nothing retries, and nothing is
- * charged.
- *
- * The public tokenization key is the only key that may exist in the frontend. The security
- * key is server-side and appears nowhere in this repository.
- */
-
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { COPY } from '@/config/copy';
 import { ENV } from '@/config/env';
 import { OGP_COLORS, OGP_TYPE } from '@/config/ogpTheme';
 
-/** The approved payment origin (§6.5.3). Loaded on demand, never bundled. */
 const COLLECT_JS_URL = 'https://secure.nmi.com/token/Collect.js';
 const SCRIPT_ID = 'ogp-collect-js';
 
-/**
- * Field styling handed to Collect.js, built from the design tokens so the hosted inputs
- * match the surrounding form without a colour literal existing in this file.
- */
 const hostedFieldCss = () => ({
   'background-color': OGP_COLORS.readSurface,
   color: OGP_COLORS.readText,
@@ -44,12 +15,6 @@ const hostedFieldCss = () => ({
   padding: '0.5rem 0.75rem',
 });
 
-/**
- * Load Collect.js once per document.
- *
- * @param {string} tokenizationKey
- * @returns {Promise<boolean>} whether the script is usable
- */
 const loadCollectJs = (tokenizationKey) =>
   new Promise((resolve) => {
     if (typeof document === 'undefined') {
@@ -79,14 +44,6 @@ const loadCollectJs = (tokenizationKey) =>
     document.head.appendChild(script);
   });
 
-/**
- * @param {{
- *   onToken: (token: string) => void,
- *   onUnavailable?: () => void,
- *   submitLabel: string,
- *   busy?: boolean,
- * }} props
- */
 export const CollectJsFields = ({ onToken, onUnavailable, submitLabel, busy = false }) => {
   const [ready, setReady] = useState(false);
   const [unavailable, setUnavailable] = useState(!ENV.nmiCollectJsKey);
@@ -141,7 +98,6 @@ export const CollectJsFields = ({ onToken, onUnavailable, submitLabel, busy = fa
 
   const submit = useCallback(() => {
     if (!window.CollectJS) return;
-    // Tokenization happens inside the hosted fields; this call never sees card data.
     window.CollectJS.startPaymentRequest();
   }, []);
 
@@ -152,15 +108,6 @@ export const CollectJsFields = ({ onToken, onUnavailable, submitLabel, busy = fa
           {COPY.PAYMENT.UNAVAILABLE}
         </p>
 
-        {/*
-          Development only, and never in a production build.
-
-          The reader-facing line above is deliberately incurious — it says nothing was charged
-          and stops, because the cause is not theirs to care about. That left whoever was
-          building the site with the same non-answer: the card fields simply were not there,
-          with nothing to say whether the integration was broken, half-finished, or merely
-          waiting on a key. It is the key. This says so, to the only audience it helps.
-        */}
         {!ENV.isProduction && (
           <p className="ogp-collectjs__diagnostic">
             {ENV.nmiCollectJsKey

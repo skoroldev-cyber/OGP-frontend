@@ -1,16 +1,3 @@
-// =============================================================================
-// ReadingSurface
-//
-// The fixed DOM layer above the canvas. It owns its own scroll so the ambient scene never
-// moves with the text, and so the column can be focused — which is what makes ArrowDown,
-// PageDown and Space scroll for a keyboard reader.
-//
-// `100dvh` rather than `100vh`: on a phone the dynamic viewport is the readable one (§3.11).
-//
-// The doubled class keeps these rules above `_base.scss`'s `.ogp-reading-surface`
-// regardless of which stylesheet the bundler injects first.
-// =============================================================================
-
 @use 'sass:color';
 @use 'ogp-tokens' as *;
 @use 'mixins' as *;
@@ -20,29 +7,12 @@
     position: fixed;
     inset: 0;
     z-index: $z-reading-surface;
-    // Text on the deep field, with or without a canvas beneath it (§3.4.4).
+
     background-color: var(--ogp-read-field);
   }
 
   .ogp-reading-surface__scroll {
-    // The scroller is the PAGE, not the window.
-    //
-    // A full-bleed scroller puts its scrollbar against the window edge, which reads as the
-    // whole site scrolling — the ambient field, the room, everything — when what is actually
-    // moving is one page of a book. §3.4.1 asks for "one centred column emulating a 7:9 page
-    // proportion, letterboxed in the ambient scene": the letterboxing is the point, and a
-    // scrollbar outside it breaks the frame.
-    //
-    // So the scroller is sized and centred like the panel, and the field either side of it
-    // stays perfectly still. On mobile the panel is full-bleed anyway (§3.11), so the two
-    // resolve to the same thing and nothing is lost.
-    // The page is an object in a room, not a wall.
-    //
-    // Running edge to edge, the surface stopped being a page and became the window: text
-    // sheared off at the top and bottom of the screen with nothing holding it, and the
-    // "letterboxed in the ambient scene" of §3.4.1 was letterboxing on two sides only. A
-    // margin above and below gives the page an edge, so the reader can see the thing they are
-    // holding — and so the manuscript ends somewhere rather than being cut off.
+
     width: #{$ogp-page-width};
     max-width: 100%;
     height: calc(100dvh - #{$ogp-page-inset} * 2);
@@ -51,19 +21,15 @@
     overflow-y: auto;
     overflow-x: hidden;
 
-    // A quiet edge. Not a card and not a border: a hairline and a soft lift, so the page reads
-    // as slightly nearer than the field behind it without ever becoming a UI panel (§8.7 —
-    // no boxes, no fills, nothing that says "website").
     border: 1px solid color-mix(in srgb, var(--ogp-read-rule) 55%, transparent);
     border-radius: $ogp-page-radius;
     box-shadow:
       0 1px 0 color-mix(in srgb, var(--ogp-read-text) 4%, transparent) inset,
       0 2rem 5rem color-mix(in srgb, var(--ogp-scrim) 55%, transparent);
-    // Keep scrolling on the compositor thread; the column never reads the canvas per frame.
+
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    // A quiet scrollbar. The default chrome is a browser artefact sitting inside a reading
-    // surface that has removed everything else unnecessary (§8.1 transfer of authority).
+
     scrollbar-width: thin;
     scrollbar-color: var(--ogp-read-rule) transparent;
 
@@ -83,8 +49,7 @@
     }
 
     @include respond-to(mobile) {
-      // Full-bleed: on a phone the page IS the window, and an inset would spend scarce
-      // vertical space on a frame nobody asked for (§3.11).
+
       width: 100%;
       height: 100dvh;
       margin-block: 0;
@@ -93,8 +58,6 @@
       box-shadow: none;
     }
 
-    // The column is focusable so it can be scrolled from the keyboard. It is not an
-    // interactive control, so it takes no ring of its own — the ring belongs to controls.
     &:focus {
       outline: none;
     }
@@ -108,7 +71,6 @@
     text-align: center;
   }
 
-  // The hairline position mark. No number, no percentage, no goal (§3.9).
   .ogp-reading-surface__position {
     position: fixed;
     top: 12vh;

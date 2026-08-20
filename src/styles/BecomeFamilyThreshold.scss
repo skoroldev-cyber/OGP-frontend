@@ -1,11 +1,3 @@
-// =============================================================================
-// BecomeFamilyThreshold
-//
-// A full viewport of `read-field`, the phrase alone in serif at display size, and nothing
-// else. The response affordance fades in only after the stillness has passed, over the
-// threshold duration — the slowest ramp in the token set.
-// =============================================================================
-
 @use 'sass:color';
 @use 'ogp-tokens' as *;
 @use 'mixins' as *;
@@ -23,7 +15,7 @@
 
   &__phrase {
     font-family: var(--ogp-font-serif);
-    // Display size. The trailing period is part of the phrase and is never trimmed.
+
     font-size: var(--ogp-display-question);
     line-height: 1.2;
     color: var(--ogp-read-text);

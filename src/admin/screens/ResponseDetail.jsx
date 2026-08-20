@@ -1,21 +1,3 @@
-/**
- * One returned questionnaire, in full.
- *
- * Rendered against the instrument the answers were given to, which the route sends alongside
- * them. That is the whole point of this screen: a stored answer is a `questionId` and some
- * text, and a column of `q07_american_chinese_mirror` is not something anybody can read, or —
- * worse — is something people will read by guessing. Every answer here appears under the
- * question the reviewer actually saw, in instrument order, including for a response returned
- * against a version that has since been reworded.
- *
- * Nothing on this screen is editable. There is no triage route for a returned instrument and
- * there should not be one: a questionnaire response is evidence, and evidence with an edit
- * button beside it stops being evidence.
- *
- * A screen of its own rather than a drawer over the list, so it can be linked, reloaded and
- * left with the back button.
- */
-
 import { useCallback, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
@@ -28,24 +10,12 @@ import { Panel } from '@/admin/components/Panel';
 import { ResourceState } from '@/admin/components/ResourceState';
 import { useAdminResource } from '@/admin/useAdminResource';
 
-/**
- * The reviewer's answer to the quotation question, as three states rather than two.
- *
- * `false` is a reviewer who declined; `null` is one who was never asked or left it blank.
- * Rendering both as "No" would be safe today and wrong the first time somebody filters on it.
- *
- * @param {boolean|null} consent The stored tri-state.
- * @returns {string} The word for it.
- */
 const consentWord = (consent) => {
   if (consent === true) return COPY.ADMIN.RESPONSES.CONSENT_GRANTED;
   if (consent === false) return COPY.ADMIN.RESPONSES.CONSENT_DECLINED;
   return COPY.ADMIN.RESPONSES.CONSENT_NOT_ANSWERED;
 };
 
-/**
- * @returns {import('react').ReactElement} The returned-questionnaire screen.
- */
 export function ResponseDetail() {
   const { responseId } = useParams();
 
@@ -55,15 +25,6 @@ export function ResponseDetail() {
   const record = data?.response ?? null;
   const instrument = data?.questionnaire ?? null;
 
-  /**
-   * The answers in instrument order, each carrying its question.
-   *
-   * Ordered by the instrument rather than by the array as submitted, because the client may
-   * send answers in any order and a research instrument read out of order is a different
-   * instrument. Answers whose question has since been removed are kept and appended, marked:
-   * an orphaned answer is precisely the kind of thing somebody needs to be told about, and
-   * dropping it silently would hide an editing mistake behind a clean-looking page.
-   */
   const entries = useMemo(() => {
     const answers = new Map((record?.answers ?? []).map((answer) => [answer.questionId, answer]));
     const questions = [...(instrument?.questions ?? [])].sort(
@@ -81,10 +42,6 @@ export function ResponseDetail() {
 
   const sections = instrument?.sections ?? [];
 
-  /**
-   * @param {object} entry One question with its answer.
-   * @returns {import('react').ReactElement} The rendered pair.
-   */
   const renderEntry = ({ question, answer }) => {
     const values = answer?.values ?? [];
     const text = answer?.text ?? '';
@@ -103,9 +60,6 @@ export function ResponseDetail() {
         ) : (
           <>
             <p className="ogp-admin-answer__label">{answer.questionId}</p>
-            {/* Only when there is an instrument to be missing from. With none stored at all,
-                the panel above has already said so and repeating it per answer would read as
-                nineteen separate faults. */}
             {instrument ? (
               <p className="ogp-admin-answer__prompt">{COPY.ADMIN.RESPONSES.UNKNOWN_QUESTION}</p>
             ) : null}

@@ -1,10 +1,3 @@
-// =============================================================================
-// ShareFlow
-//
-// One quiet row of exactly two channels. There is no brand mark, no coloured network
-// button, no icon grid — and no styling here that a counter or badge could ever occupy.
-// =============================================================================
-
 @use 'sass:color';
 @use 'ogp-tokens' as *;
 @use 'mixins' as *;
@@ -55,7 +48,6 @@
     gap: 0.5rem 2rem;
     align-items: center;
 
-    // Both channels carry identical weight; neither is the primary one.
     .ogp-invitation {
       font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale));
     }

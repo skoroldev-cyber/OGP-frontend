@@ -1,24 +1,3 @@
-/**
- * The returned Test Questionnaire. Read-only.
- *
- * Its own screen, deliberately not merged into reader feedback. A note is one reader speaking
- * unprompted; a returned instrument is nineteen answers to nineteen fixed questions, and the
- * two are read for different reasons. Filed together, the notes would bury the instrument.
- *
- * Three things in order: what the filters currently describe, in aggregate; the distribution
- * behind every scaled question; and the list itself. The distributions come before the table
- * because five reviewers splitting 1/1/5/5/5 is the finding, and it is invisible in a column
- * of dates.
- *
- * Nothing here is keyed to a person. The projection behind it carries no `sessionId` and no
- * reading progress (§10.2, §10.7.3), so a reviewer reads what was answered and never who was
- * where. The name in the "Reviewer" column is the one the reviewer typed into the instrument
- * themselves — reviewer metadata, not an identity the platform assigned.
- *
- * The filters are one form with one Apply, for the reason given in `FeedbackScreen`: selects
- * that re-query on change fire a request per keystroke on the search field beside them.
- */
-
 import { useCallback, useId, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -35,7 +14,6 @@ import { RatingDistribution } from '@/admin/components/RatingDistribution';
 import { ResourceState } from '@/admin/components/ResourceState';
 import { useAdminResource } from '@/admin/useAdminResource';
 
-/** Every filter, cleared. */
 const NO_FILTERS = Object.freeze({
   questionnaireId: '',
   cohortId: '',
@@ -46,23 +24,12 @@ const NO_FILTERS = Object.freeze({
   to: '',
 });
 
-/** The words for the tri-state quote-permission filter, keyed by its wire value. */
 const CONSENT_LABELS = Object.freeze({
   granted: COPY.ADMIN.RESPONSES.CONSENT_GRANTED,
   declined: COPY.ADMIN.RESPONSES.CONSENT_DECLINED,
   not_answered: COPY.ADMIN.RESPONSES.CONSENT_NOT_ANSWERED,
 });
 
-/**
- * Drop the empty entries so the query carries only what was asked for.
- *
- * The two date controls are `<input type="date">`, which yields `YYYY-MM-DD`; the routes take
- * a full ISO instant. `from` is widened to the start of its day and `to` to the end of its
- * own, so a range typed as one day is that whole day rather than a zero-length instant.
- *
- * @param {typeof NO_FILTERS} filters The applied filters.
- * @returns {object} The query.
- */
 const asQuery = (filters) => {
   const query = {};
   for (const [name, value] of Object.entries(filters)) {
@@ -74,9 +41,6 @@ const asQuery = (filters) => {
   return query;
 };
 
-/**
- * @returns {import('react').ReactElement} The Test Questionnaire screen.
- */
 export function ResponsesScreen() {
   const ids = useId();
 
@@ -97,9 +61,6 @@ export function ResponsesScreen() {
     [reference.data],
   );
 
-  // How many questions each instrument asks, so "8 answered" can be read as "8 of 19".
-  // Taken from the instrument rather than from the longest response on the page: a table
-  // whose denominator moves as you page through it is worse than no denominator.
   const questionCounts = useMemo(
     () =>
       new Map(
@@ -128,28 +89,18 @@ export function ResponsesScreen() {
   );
   const summary = useAdminResource(loadSummary);
 
-  /**
-   * @param {import('react').FormEvent} event The submission.
-   * @returns {void}
-   */
   const onApply = (event) => {
     event.preventDefault();
     setApplied(draft);
     setOffset(0);
   };
 
-  /**
-   * @returns {void}
-   */
   const onClear = () => {
     setDraft(NO_FILTERS);
     setApplied(NO_FILTERS);
     setOffset(0);
   };
 
-  /**
-   * @returns {Promise<void>} Resolves once the file has been handed over or refused.
-   */
   const onExport = async () => {
     setExporting(true);
     setExportFailure(null);
@@ -157,9 +108,6 @@ export function ResponsesScreen() {
       const blob = await adminApi.exportQuestionnaireResponsesCsv(asQuery(applied));
       downloadFile(blob, COPY.ADMIN.RESPONSES.EXPORT_FILENAME);
     } catch (failure) {
-      // The export carries reviewers' written words, and the names they gave, off the
-      // platform. It is role-gated more tightly than reading the table is and every call is
-      // audit-logged (§10.11), so a 403 here is a legitimate answer rather than a fault.
       setExportFailure(failure);
     } finally {
       setExporting(false);
@@ -169,11 +117,6 @@ export function ResponsesScreen() {
   const rows = list.data?.responses ?? [];
   const rated = summary.data?.byQuestion ?? [];
 
-  /**
-   * @param {string} name The filter name.
-   * @param {string} value The value.
-   * @returns {void}
-   */
   const setFilter = (name, value) => setDraft((previous) => ({ ...previous, [name]: value }));
 
   return (

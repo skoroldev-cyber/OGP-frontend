@@ -1,12 +1,3 @@
-// =============================================================================
-// ReadingControls — the floating cluster (§3.9)
-//
-// Pinned to the trailing edge of the reading surface, vertically centred: within reach of a
-// thumb on a phone and out of the measure on a desktop. It recedes with the rest of the
-// chrome while reading and returns on intent (§8.7) — the manuscript is what the reader came
-// for, and nothing else may compete with it.
-// =============================================================================
-
 @use 'sass:color';
 @use 'ogp-tokens' as *;
 @use 'mixins' as *;
@@ -25,8 +16,6 @@
   background: color-mix(in srgb, var(--ogp-scrim) 55%, transparent);
   transform: translateY(-50%);
 
-  // Receded while reading; full presence the moment the reader reaches for it. Never removed,
-  // because a control the reader cannot find is a control they do not have.
   opacity: 0.25;
   transition: opacity var(--ogp-duration-ui-gentle) var(--ogp-ease);
 
@@ -60,8 +49,6 @@
       @include focus-ring;
     }
 
-    // At the end of the scale the control stays present but inert: removing it would make the
-    // cluster change shape as the reader adjusts, which is more distracting than a dim button.
     &:disabled {
       opacity: 0.3;
       cursor: default;
@@ -87,15 +74,11 @@
     justify-content: center;
   }
 
-  // Auto-reading is the one control with a state worth showing, so it carries the gold —
-  // sparingly, and only while it is actually running. The section mark carries the same
-  // treatment for the same reason: it is a state the reader set and can unset, not a score.
   &__button--primary[aria-pressed='true'],
   &__button--mark[aria-pressed='true'] {
     color: var(--ogp-gold-text);
   }
 
-  /// The pace dial: five rising bars, filled to the current step. A mark rather than a number.
   &__pace {
     display: flex;
     height: 0.85rem;
@@ -114,7 +97,6 @@
       opacity: 1;
     }
 
-    // Each bar a little taller than the last, so the control reads as a slope at a glance.
     &:nth-child(1) { height: 25%; }
     &:nth-child(2) { height: 40%; }
     &:nth-child(3) { height: 58%; }
@@ -129,7 +111,6 @@
     opacity: 0.7;
   }
 
-  // Touch targets are 44 px even though the visual control is smaller (§8.10.4).
   @include respond-to(mobile) {
     right: 0.25rem;
     gap: 0;
@@ -140,7 +121,6 @@
     }
   }
 
-  // A reader who has asked for less motion still gets the state change, just not the fade.
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }

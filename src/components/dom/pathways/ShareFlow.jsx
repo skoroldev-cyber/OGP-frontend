@@ -1,23 +1,3 @@
-/**
- * S14 pathway 6 — Share the Opening Arc (master §5.3, §5.4).
- *
- * The second of exactly three share surfaces, and the only one the reader opens themselves.
- * Because the reader asked, there is no gate to pass: §5.2's gates constrain when the
- * *system* speaks, never the reader's own agency.
- *
- * Email, WhatsApp (coming soon) and LinkedIn (coming soon) sit with the native share sheet
- * and "Copy the link". **No social-network brand buttons, no compose widgets, no
- * contact-list access, ever.**
- *
- * The only permitted pre-fill is `COPY.SHARE.MESSAGE` — "I thought of you while taking this
- * journey." — and the reader may edit it. Never "Read this."
- *
- * The link is an entrance, not an excerpt: the recipient lands at S0 and receives their own
- * journey from the beginning, with no sender name, no "shared with you" banner and no
- * skip-ahead. **Sharing yields the sharer nothing** — no content, no access, no status, no
- * acknowledgement, no count. A link can always be withdrawn.
- */
-
 import { useCallback, useState } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -27,19 +7,11 @@ import { emit as emitEvent } from '@/services/events';
 
 import { ShareChannels } from '@/components/dom/ShareChannels';
 
-/**
- * @param {{ onBack: () => void }} props
- */
 export const ShareFlow = ({ onBack }) => {
   const [share, setShare] = useState(null);
   const [message, setMessage] = useState(COPY.SHARE.MESSAGE);
   const [status, setStatus] = useState(null);
 
-  /**
-   * Create the token once and reuse it for both channels, so one intention is one link.
-   *
-   * @returns {Promise<{ url: string, token: string }|null>}
-   */
   const ensureShare = useCallback(async () => {
     if (share) return share;
     try {
@@ -61,7 +33,7 @@ export const ShareFlow = ({ onBack }) => {
       await navigator.share({ text: `${message} ${created.url}` });
       emitEvent(EVENTS.SHARE_COMPLETED, { shareTokenId: created.token, channel: 'native_share' });
     } catch {
-      // Dismissed or refused. A share that did not complete is never reported as one.
+      void 0;
     }
   }, [ensureShare, message]);
 
@@ -73,7 +45,6 @@ export const ShareFlow = ({ onBack }) => {
       setStatus(COPY.SHARE.COPIED);
       emitEvent(EVENTS.SHARE_COMPLETED, { shareTokenId: created.token, channel: 'copy_link' });
     } catch {
-      // No clipboard permission. The link is on screen and selectable; nothing errors.
       setStatus(null);
     }
   }, [ensureShare, message]);
@@ -83,7 +54,7 @@ export const ShareFlow = ({ onBack }) => {
     try {
       await api.revokeShare(share.token);
     } catch {
-      // Best effort. A link the server could not revoke is still revoked on request later.
+      void 0;
     }
     setShare(null);
     setStatus(COPY.SHARE.REVOKED);
@@ -127,7 +98,6 @@ export const ShareFlow = ({ onBack }) => {
 
       <ShareChannels url={share?.url} message={message} />
 
-      {/* A statement of fact. No counter, no flourish, no animation. */}
       {status && (
         <p className="ogp-share-flow__status" role="status">
           {status}

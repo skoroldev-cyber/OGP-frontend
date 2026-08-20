@@ -1,25 +1,3 @@
-/**
- * S14 pathway 4 — the family pathway (master §5.5, §6.3).
- *
- * The threshold comes first: `BecomeFamilyThreshold` renders the locked phrase alone, in
- * silence, for at least four seconds before anything can be answered. Only after the reader
- * chooses to continue does the quiet form exist at all.
- *
- * **Membership-word resolution (binding ruling).** The state machine's internal pathway name
- * is "Become a Global Family Member"; the analytics slug is `become_family`; the role is
- * recorded internally as `Global Family Member`. **Every user-facing string here is the
- * locked phrase or ordinary language** — the interface never says "member", "membership",
- * or any of the prohibited vocabulary, and where a label is needed it says "Family" or
- * nothing.
- *
- * Minimal fields: email, an optional chosen name, and a communication preference.
- * **No gender question. No birthdate.** No profile, no public presence, no badge, no title,
- * no number.
- *
- * **This threshold must never route into a payment surface.** Donation and purchase
- * are separate workflows, and nothing in this file touches them.
- */
-
 import { useCallback, useState } from 'react';
 
 import { COPY } from '@/config/copy';
@@ -27,14 +5,10 @@ import { api } from '@/services/api';
 
 import { BecomeFamilyThreshold } from '@/components/dom/BecomeFamilyThreshold';
 
-/** The two communication preferences. Nothing is sent unless the reader asks for it. */
 const COMMUNICATION = { ON: 'updates', OFF: 'none' };
 
 const looksLikeEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
 
-/**
- * @param {{ onBack: () => void }} props
- */
 export const FamilyFlow = ({ onBack }) => {
   const [passedThreshold, setPassedThreshold] = useState(false);
   const [email, setEmail] = useState('');
@@ -54,7 +28,6 @@ export const FamilyFlow = ({ onBack }) => {
     setProblem(null);
     setBusy(true);
     try {
-      // Gate-checked server-side; the client cannot bypass the threshold.
       await api.becomeFamily({
         email: email.trim(),
         displayName: displayName.trim() || undefined,
@@ -73,7 +46,6 @@ export const FamilyFlow = ({ onBack }) => {
   if (welcomed) {
     return (
       <section className="ogp-family" aria-label={COPY.THRESHOLD.PHRASE}>
-        {/* One screen, then back to where the reader was. Nothing more is asked. */}
         <p className="ogp-family__confirmation">{COPY.FAMILY.CONFIRMATION}</p>
         <button type="button" className="ogp-affordance" onClick={onBack}>
           {COPY.A11Y.BACK}

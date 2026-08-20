@@ -1,16 +1,7 @@
-// =============================================================================
-// Modal — the one dialog, plus the field styles its contents share.
-//
-// The backdrop is a scrim over the reading, not a sheet that replaces it (§8.11): the
-// manuscript stays visible and slightly withdrawn, because the reader has not left it.
-// =============================================================================
-
 @use 'sass:color';
 @use 'ogp-tokens' as *;
 @use 'mixins' as *;
 
-// Above the chrome, below the transition veil — a dialog is part of the interface, and the
-// veil is the interface changing.
 $z-modal: 35;
 
 .ogp-modal {
@@ -43,8 +34,6 @@ $z-modal: 35;
     background-color: var(--ogp-read-surface);
     box-shadow: 0 24px 60px color-mix(in srgb, var(--ogp-scrim) 55%, transparent);
 
-    // The panel itself is the focus target before anything inside it is, and the ring would
-    // otherwise trace the whole dialog on open.
     &:focus {
       outline: none;
     }
@@ -96,7 +85,6 @@ $z-modal: 35;
     border-top: 1px solid var(--ogp-read-rule);
   }
 
-  // Leaving is never heavier than staying, and never lighter either.
   &__close {
     @include quiet-control;
 
@@ -104,18 +92,6 @@ $z-modal: 35;
   }
 }
 
-/// The primary action of a dialog.
-///
-/// Not `.ogp-invitation`, which these used to borrow. That is the *threshold* treatment —
-/// large serif text with a gold glow, no box and no border — and §8.7 reserves it for
-/// threshold actions: "Enter", the pathway choices, the places where the reader crosses from
-/// one part of the work into another. Inside a dialog it came out at display size, dwarfing
-/// the field it submits and the Close beside it, so a form control was shouting like a
-/// chapter opening.
-///
-/// This is what §8.7 leaves for everything else: a control that looks like a control. UI
-/// face, control size, a hairline in gold and a wash behind it, sized to sit level with the
-/// dismissal it shares a row with.
 .ogp-action {
   display: inline-flex;
   align-items: center;
@@ -145,7 +121,6 @@ $z-modal: 35;
     color: var(--ogp-read-text);
   }
 
-  // Working, not broken. The control stays legible while it waits (§0.6: never a spinner).
   &:disabled {
     border-color: var(--ogp-read-rule);
     background-color: transparent;
@@ -166,11 +141,6 @@ $z-modal: 35;
     transform: translateY(8px);
   }
 }
-
-// -----------------------------------------------------------------------------
-// Fields — shared by the composer and the passage note so the two dialogs cannot
-// drift apart visually.
-// -----------------------------------------------------------------------------
 
 .ogp-field {
   display: flex;

@@ -1,27 +1,4 @@
-/**
- * Shared GLSL chunks for the OGP canvas.
- *
- * These are template strings, not files: every shader in `components/canvas` composes the
- * chunks it needs, so there is exactly one implementation of the noise, the curl flow
- * field, the de-banding dither and the analytic point falloff in the whole build.
- *
- * NAMING LAW: every symbol is `ogp`-prefixed. These chunks are injected into three's own
- * shader programs via `onBeforeCompile`, where `rand`, `pow2`, `mod289` and friends may
- * already exist — a collision would be a silent compile failure on some drivers only.
- *
- * DESIGN LAW served here:
- *   - "no banding (B-001)" — `ogpDeband` is applied to every gradient this build draws.
- *   - "drift ... below conscious tracking speed" (§8.3.1) — the curl field is a FLOW
- *     DIRECTION (unit length); amplitude is always supplied by the caller from a token.
- *   - "no glitter, no exploding particles" (§8.6.3) — the field is divergence-free by
- *     construction, so points circulate and never burst outward.
- */
-
-/**
- * Hash + value noise + simplex noise + de-banding dither + analytic point falloff.
- * Include this chunk ONCE per shader stage. `GLSL_CURL` depends on it.
- */
-export const GLSL_COMMON = /* glsl */ `
+export const GLSL_COMMON =  `
 float ogpHash11(float n) {
   return fract(sin(n) * 43758.5453123);
 }
@@ -57,7 +34,6 @@ vec4 ogpMod289v4(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
 vec4 ogpPermute(vec4 x) { return ogpMod289v4(((x * 34.0) + 1.0) * x); }
 vec4 ogpTaylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
 
-/** Ashima simplex noise, 3D. Range approximately [-1, 1]. */
 float ogpSnoise(vec3 v) {
   const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
   const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
@@ -130,11 +106,6 @@ float ogpFbm3(vec3 p, int octaves) {
   return value;
 }
 
-/**
- * Interleaved-gradient dither. The void is a near-black gradient across the whole
- * viewport, which is exactly where 8-bit banding shows; one sub-LSB of noise removes it
- * without being visible as grain. "no banding (B-001)" is a hard requirement, not a nicety.
- */
 float ogpDither(vec2 fragCoord) {
   vec3 m = vec3(52.9829189, 0.06711056, 0.00583715);
   return fract(m.x * fract(dot(fragCoord, m.yz)));
@@ -144,13 +115,6 @@ vec3 ogpDeband(vec3 color, vec2 fragCoord) {
   return color + (ogpDither(fragCoord) - 0.5) * (1.0 / 255.0);
 }
 
-/**
- * Analytic radial falloff for point sprites.
- *
- * The warm point "must not behave like a logo animation" and must "never be a scaling
- * bitmap" (§2.4.3): computing the falloff in the fragment shader means there is no image
- * to scale, no pixel grid to reveal, and no resolution at which it stops being light.
- */
 float ogpSoftPoint(vec2 coord, float hardness) {
   float d = length(coord - vec2(0.5)) * 2.0;
   float a = 1.0 - smoothstep(0.0, 1.0, d);
@@ -158,17 +122,7 @@ float ogpSoftPoint(vec2 coord, float hardness) {
 }
 `;
 
-/**
- * Divergence-free curl flow field. Requires `GLSL_COMMON` in the same shader stage.
- *
- * Returns a UNIT direction: the caller multiplies by an amplitude token
- * (`ORIGIN_FIELD.driftMaxUnitsPerSec`, `OGP_MOTION.driftMaxUnitsPerSec`) so that no
- * shader can ever exceed the "below conscious tracking speed" law on its own authority.
- *
- * Forward differences (4 potential samples rather than 6) keep the 90k-point HIGH tier
- * inside budget; for an art-directed flow the asymmetry is not perceptible.
- */
-export const GLSL_CURL = /* glsl */ `
+export const GLSL_CURL =  `
 vec3 ogpPotential(vec3 p) {
   return vec3(
     ogpSnoise(p),
@@ -194,12 +148,7 @@ vec3 ogpCurl(vec3 p) {
 }
 `;
 
-/**
- * Noise-edged progressive discard, re-themed from itom's brush-stroke reveal.
- * Requires `GLSL_COMMON`. Used by `LuminousRevealMaterial` — dark/dormant discards to
- * expose the luminous twin beneath, with a warm edge instead of itom's cool one.
- */
-export const GLSL_REVEAL_EDGE = /* glsl */ `
+export const GLSL_REVEAL_EDGE =  `
 float ogpRevealBoundary(vec2 uvCoord, float progress, float scale, float roughness) {
   float n = ogpValueNoise2(uvCoord * scale) * roughness;
   float mask = (1.0 - uvCoord.y) + n;

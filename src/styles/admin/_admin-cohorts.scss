@@ -1,15 +1,3 @@
-// =============================================================================
-// OPERATIONS PANEL — cohorts
-//
-// The progress board reads left to right in the order §10.7.2 asks the question:
-// interested → approved → link sent → redeemed → questionnaire completed, then the two
-// that need attention. The numbers are set larger than the rest of the panel because
-// this board is read at a glance and acted on; everything else here is read carefully.
-//
-// Counts only. There is no participant list on this screen and no route that would
-// produce one (§10.2).
-// =============================================================================
-
 @use '../ogp-tokens' as *;
 @use '../mixins' as *;
 @use 'admin-shell' as shell;

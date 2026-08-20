@@ -1,16 +1,3 @@
-// =============================================================================
-// OPERATIONS PANEL — reader feedback
-//
-// The one place in this panel where the manuscript face appears. A marked passage is
-// the work itself, quoted back; setting it in the interface face would misrepresent
-// what the reader was looking at when they marked it. Everything around it stays Inter,
-// because everything around it is chrome.
-//
-// What the reader wrote is displayed, never edited: the triage route accepts a status
-// and staff notes and nothing else, and the layout says so by keeping the body outside
-// the form entirely.
-// =============================================================================
-
 @use '../ogp-tokens' as *;
 @use '../mixins' as *;
 @use 'admin-shell' as shell;
