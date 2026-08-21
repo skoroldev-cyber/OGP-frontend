@@ -20,18 +20,34 @@
     pointer-events: auto;
   }
 
+  // The scene draws these words itself, so the DOM copy is transparent by
+  // default and fades in only when the scene is late or never arrives. It stays
+  // out of flow in both states, so the swap never moves the invitation beneath
+  // it, and it remains in the accessibility tree either way.
   &__passage {
 
     @include scrim;
 
-    max-width: 26ch;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    max-width: min(26ch, 100%);
+    transform: translate(-50%, -50%);
 
     color: var(--ogp-read-text);
     line-height: 1.45;
-  }
 
-  &__passage--scene {
-    @include visually-hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--ogp-duration-scene) var(--ogp-ease-enter);
+
+    &[data-revealed='true'] {
+      opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
   }
 
   &__enter {

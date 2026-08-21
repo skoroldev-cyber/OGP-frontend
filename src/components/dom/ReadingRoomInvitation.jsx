@@ -11,7 +11,7 @@ const inputMethodOf = (event) => {
   return 'pointer';
 };
 
-export const ReadingRoomInvitation = () => {
+export const ReadingRoomInvitation = ({ sceneReady = true }) => {
   const { advance } = useExperience();
 
   const [invitationRevealed, setInvitationRevealed] = useState(false);
@@ -25,6 +25,11 @@ export const ReadingRoomInvitation = () => {
     return () => window.clearTimeout(timer);
   }, []);
 
+  // The scene carries the first words as its own lettering. If it has not arrived
+  // by the time the invitation appears, the passage speaks for itself rather than
+  // leaving the reader an empty frame with an Enter beneath it.
+  const passageRevealed = invitationRevealed && !sceneReady;
+
   const onEnter = useCallback(
     (event) => advance({ inputMethod: inputMethodOf(event) }),
     [advance],
@@ -32,7 +37,10 @@ export const ReadingRoomInvitation = () => {
 
   return (
     <section className="ogp-room-invitation ogp-overlay-passthrough" aria-label={COPY.META.READING_ROOM_NAME}>
-      <p className="ogp-threshold-text ogp-room-invitation__passage ogp-room-invitation__passage--scene">
+      <p
+        className="ogp-threshold-text ogp-room-invitation__passage"
+        data-revealed={passageRevealed ? 'true' : 'false'}
+      >
         {COPY.PORTAL.FIRST_WORDS.map((line, index) => (
           <span key={line}>
             {index > 0 && <br />}

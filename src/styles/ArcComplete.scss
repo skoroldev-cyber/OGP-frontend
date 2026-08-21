@@ -21,8 +21,8 @@
 
   &__response {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1rem 2.5rem;
+    flex-direction: column;
+    gap: clamp(1.25rem, 3.5vh, 2.25rem);
     align-items: center;
     justify-content: center;
     min-height: $ogp-touch-target;
@@ -35,14 +35,23 @@
     }
   }
 
+  // Continue keeps `.ogp-invitation` display size — it is the S13 threshold.
+  // Note and observations sit one step down on the same scale used for choice
+  // labels, on their own row, so they are not compared against a display line.
+  &__aside {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    align-items: baseline;
+    justify-content: center;
+  }
+
   &__observations,
   &__note {
-
-    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.15);
+    font-size: calc(var(--ogp-read-size-base) * var(--ogp-text-scale) * 1.25);
   }
 
   &__share {
-    flex: 1 1 100%;
     display: flex;
     justify-content: center;
   }

@@ -1,0 +1,137 @@
+@use 'ogp-tokens' as *;
+@use 'mixins' as *;
+
+$hint-rest-opacity: 0.68;
+$hint-trail-length: clamp(2.5rem, 7vh, 4rem);
+$hint-edge-inset: clamp(0.85rem, 2.5vw, 1.75rem);
+
+.ogp-crossing-hint {
+  --ogp-hint-rise: 3.6s;
+
+  position: fixed;
+  top: 50%;
+  right: 0;
+  z-index: $z-chrome;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding-inline-end: max(#{$hint-edge-inset}, env(safe-area-inset-right));
+  transform: translateY(-50%);
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity $ogp-duration-passage $ogp-ease-enter;
+
+  &[data-revealed='true'] {
+    opacity: $hint-rest-opacity;
+  }
+
+  &[data-stirring='true'] {
+    --ogp-hint-rise: 1.9s;
+  }
+
+  &[data-revealed='true'][data-stirring='true'] {
+    opacity: 1;
+    transition-duration: $ogp-duration-ui-gentle;
+  }
+
+  &__trail {
+    position: relative;
+    width: 1px;
+    height: $hint-trail-length;
+    background: linear-gradient(
+      to top,
+      transparent 0%,
+      color-mix(in srgb, var(--ogp-gold-text) 45%, transparent) 55%,
+      transparent 100%
+    );
+
+    // An upward chevron, drawn from two borders on a rotated square.
+    &::before {
+      content: '';
+      position: absolute;
+      top: -0.5rem;
+      left: 50%;
+      width: 0.45rem;
+      height: 0.45rem;
+      border-top: 1px solid color-mix(in srgb, var(--ogp-gold-text) 75%, transparent);
+      border-right: 1px solid color-mix(in srgb, var(--ogp-gold-text) 75%, transparent);
+      transform: translateX(-50%) rotate(-45deg);
+    }
+
+    // A light that travels the hairline in the direction of the gesture. At
+    // rest it sits near the top, so a still cue still points somewhere.
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      inset-inline: 0;
+      height: 40%;
+      background: linear-gradient(
+        to top,
+        transparent 0%,
+        color-mix(in srgb, var(--ogp-gold-core) 85%, transparent) 65%,
+        transparent 100%
+      );
+    }
+
+    @include full-motion {
+      &::after {
+        animation: ogp-crossing-hint-rise var(--ogp-hint-rise) $ogp-ease infinite;
+      }
+    }
+  }
+
+  &__label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+
+    font-family: var(--ogp-font-ui);
+    font-size: var(--ogp-ui-size-meta);
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+    color: var(--ogp-read-text-dim);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--ogp-scrim) 85%, transparent);
+
+    @include full-motion {
+      animation: ogp-crossing-hint-breath 7s $ogp-ease infinite;
+    }
+  }
+
+  @include respond-to(mobile) {
+    gap: 0.75rem;
+  }
+}
+
+@keyframes ogp-crossing-hint-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(250%);
+  }
+
+  18% {
+    opacity: 1;
+  }
+
+  62% {
+    opacity: 0;
+    transform: translateY(-120%);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-120%);
+  }
+}
+
+@keyframes ogp-crossing-hint-breath {
+  0%,
+  100% {
+    opacity: 0.78;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}

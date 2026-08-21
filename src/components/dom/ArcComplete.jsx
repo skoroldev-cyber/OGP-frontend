@@ -38,27 +38,33 @@ export const ArcComplete = () => {
       <div className="ogp-arc-complete__response" data-ready={decompressed ? 'true' : 'false'}>
         {decompressed && (
           <>
-            <button type="button" className="ogp-invitation" onClick={onContinue}>
+            <button
+              type="button"
+              className="ogp-invitation ogp-arc-complete__continue"
+              onClick={onContinue}
+            >
               {COPY.COMPLETE.CONTINUE}
             </button>
 
-            <button
-              type="button"
-              className="ogp-invitation ogp-arc-complete__note"
-              onClick={openNote}
-            >
-              {COPY.FEEDBACK.INVITE}
-            </button>
-
-            {FLAGS.betaMode && (
+            <div className="ogp-arc-complete__aside">
               <button
                 type="button"
-                className="ogp-invitation ogp-arc-complete__observations"
-                onClick={openObservations}
+                className="ogp-invitation ogp-arc-complete__note"
+                onClick={openNote}
               >
-                {COPY.COMPLETE.BETA_END_BUTTON}
+                {COPY.FEEDBACK.INVITE}
               </button>
-            )}
+
+              {FLAGS.betaMode && (
+                <button
+                  type="button"
+                  className="ogp-invitation ogp-arc-complete__observations"
+                  onClick={openObservations}
+                >
+                  {COPY.COMPLETE.BETA_END_BUTTON}
+                </button>
+              )}
+            </div>
 
             <ShareChannels className="ogp-arc-complete__share" />
           </>

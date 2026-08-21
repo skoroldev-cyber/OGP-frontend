@@ -23,6 +23,8 @@ const copy = {
     CONTINUE_IN_SILENCE: 'Continue in silence',
     SOUND: 'Sound',
     GROUP_LABEL: 'Experience controls',
+    CROSS_HINT: 'Scroll up to continue',
+    CROSS_HINT_TOUCH: 'Swipe up to continue',
   },
 
   A11Y: {

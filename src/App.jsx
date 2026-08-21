@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useMemo } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
 import { PerformanceMonitor } from '@react-three/drei';
@@ -29,6 +29,7 @@ import { AccessibilityControls } from '@/components/dom/AccessibilityControls';
 import { ScreenReaderNarrative } from '@/components/dom/ScreenReaderNarrative';
 import { NavigationMinimal } from '@/components/dom/NavigationMinimal';
 import { PortalInvitation } from '@/components/dom/PortalInvitation';
+import { CrossingHint } from '@/components/dom/CrossingHint';
 import { ReadingRoomInvitation } from '@/components/dom/ReadingRoomInvitation';
 import { AgeRangePrompt } from '@/components/dom/AgeRangePrompt';
 import { ReadingSurface } from '@/components/dom/ReadingSurface/ReadingSurface';
@@ -82,7 +83,7 @@ const CanvasLayer = () => {
   );
 };
 
-const DomLayer = () => {
+const DomLayer = ({ splineSceneReady = false }) => {
   const { state } = useExperience();
   const index = state ? stateIndex(state) : -1;
 
@@ -90,6 +91,14 @@ const DomLayer = () => {
     index >= stateIndex(STATES.S1_DARKNESS) &&
     index <= stateIndex(STATES.S8_READING_ROOM_INVITATION);
   const inRoom = index >= stateIndex(STATES.S9_READING_ROOM_INIT);
+
+  // In spline mode the opening only moves on a sustained scroll upward, and the
+  // scene carries no affordance of its own to say so.
+  const teachTheCrossing =
+    ENTRANCE_MODE === 'spline' &&
+    splineSceneReady &&
+    inOpening &&
+    state !== STATES.S8_READING_ROOM_INVITATION;
 
   return (
     <div className="ogp-dom-layer">
@@ -106,7 +115,11 @@ const DomLayer = () => {
           <PortalInvitation />
         )}
 
-      {state === STATES.S8_READING_ROOM_INVITATION && <ReadingRoomInvitation />}
+      {teachTheCrossing && <CrossingHint />}
+
+      {state === STATES.S8_READING_ROOM_INVITATION && (
+        <ReadingRoomInvitation sceneReady={splineSceneReady} />
+      )}
 
       {state === STATES.S9_READING_ROOM_INIT && FLAGS.ageLayerEnabled && <AgeRangePrompt />}
 
@@ -161,15 +174,22 @@ const ExperienceShell = () => {
 
   const splineScene = state === STATES.S8_READING_ROOM_INVITATION ? 'invitation' : 'entrance';
 
+  // The invitation scene is several megabytes, so on a slow connection it can
+  // arrive long after the state does. The threshold needs to know whether its
+  // words are on screen yet.
+  const [loadedScene, setLoadedScene] = useState(null);
+  const onSplineLoaded = useCallback((loaded) => setLoadedScene(loaded), []);
+  const splineSceneReady = splineBackdrop && loadedScene === splineScene;
+
   return (
     <div className="ogp-app">
       {splineBackdrop && (
         <Suspense fallback={null}>
-          <SplineEntrance scene={splineScene} />
+          <SplineEntrance scene={splineScene} onLoaded={onSplineLoaded} />
         </Suspense>
       )}
       {hasWebGL && !splineBackdrop && <CanvasLayer />}
-      <DomLayer />
+      <DomLayer splineSceneReady={splineSceneReady} />
       <ExperienceRoutes />
     </div>
   );

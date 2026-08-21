@@ -149,7 +149,7 @@ export const SplineEntrance = ({ scene = 'entrance', onLoaded }) => {
 
         setFailed(false);
         setResidentScene(scene);
-        onLoaded?.();
+        onLoaded?.(scene);
       } catch {
         if (!cancelled) setFailed(true);
       }
